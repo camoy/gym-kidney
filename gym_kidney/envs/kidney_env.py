@@ -78,7 +78,7 @@ class KidneyEnv(gym.Env):
 
 	def _get_obs(self):
 		# embed
-		return kc.embed(self.graph, [kc.p0_unif], self.tau)
+		return kc.embed(self.graph, [kc.p0_max, kc.p0_mean], self.tau)
 
 	def _render(self, mode = "human", close = False):
 		if close:

@@ -19,37 +19,22 @@ def _walks(w, p0, tau):
 		ps += [w * ps[i-1]]
 	return ps
 
-def _degrees(g):
-	"""
-	Given graph g. Returns sparse diagonal matrix
-	containing degree of vertices.
-	"""
-	n, degs = g.order(), g.degree()
-	d = sp.lil_matrix((n, n))
-	for i in range(n):
-		d[i, i] = degs[i]
-	return d.tocsc()
-
 def _degrees_inv(g):
 	"""
 	Given graph g. Returns inverse of degree matrix
 	where 0 entries are ignored.
 	"""
-	n = g.order()
-	ret, degs = sp.lil_matrix((n, n)), _degrees(g)
-	for i in range(n):
-		d = degs[i, i]
-		if d != 0:
-			ret[i, i] = 1/d
-	return ret.tocsc()
+	n, degs = g.order(), g.degree().values()
+	degs = list(map(lambda x : 0 if x == 0 else 1/x, degs))
+	return sp.diags(degs, format = "csc")
 
-def _trans(g):
+def _trans(g, deg):
 	"""
-	Given graph g. Returns transition matrix for
-	g (uniform over adjacent vertices).
+	Given graph g, and inverse degree matrix. Returns
+	transition matrix for g (uniform over adjacent vertices).
 	"""
-	adj = nx.adjacency_matrix(g).tocsc()
-	return (_degrees_inv(g) * adj).transpose()
+	adj = nx.to_scipy_sparse_matrix(g, format = "csc")
+	return (deg * adj).T
 
 def _feature(g, p0, tau):
 	"""
@@ -58,12 +43,13 @@ def _feature(g, p0, tau):
 	dependent only on tau).
 	"""
 	n, m = g.order(), np.zeros((tau+1, tau+1))
-	ps = _walks(_trans(g), p0, tau)
-	dsqrt = _degrees_inv(g).sqrt()
+	deg_inv = _degrees_inv(g)
+	ps = _walks(_trans(g, deg_inv), p0, tau)
+	dsqrt = deg_inv.sqrt()
 	for s in range(tau):
 		for t in range(s+1, tau+1):
 			m[s, t] = sp.linalg.norm(dsqrt*ps[s] - dsqrt*ps[t])
-	return m[np.triu_indices(tau+1, 1)]
+	return m[np.triu_indices(tau+1, 1)].tolist()
 
 #
 # INITIAL DISTRIBUTIONS HELPERS
@@ -81,15 +67,15 @@ def _best_vertex(g, f):
 	best_val = min(v, key=lambda x:abs(x-cf))
 	return k[v.index(best_val)]
 
-def _p0_dirac_gen(g, f):
+def _p0_dirac(g, v):
 	"""
-	Given graph g and function f. Returns Dirac
-	delta distribution at vertex f(g).
+	Given graph g and vertex v. Returns Dirac
+	delta distribution at vertex v.
 	"""
-	n, v = g.order(), f(g)
-	p0 = np.zeros((n, n))
-	p0[v, v] = 1
-	return sp.csc_matrix(p0)
+	n = g.order()
+	p0 = [0] * n
+	p0[v] = 1
+	return sp.csc_matrix(p0).T
 
 #
 # INITIAL DISTRIBUTIONS
@@ -100,45 +86,31 @@ def p0_min(g):
 	Given graph g. Returns Dirac delta distribution
 	at vertex with minimum degree.
 	"""
-	return _p0_dirac_gen(g, (lambda g: _best_vertex(g, min)))
+	return _p0_dirac(g, _best_vertex(g, min))
 
 def p0_max(g):
 	"""
 	Given graph g. Returns Dirac delta distribution
 	at vertex with maximum degree.
 	"""
-	return _p0_dirac_gen(g, (lambda g: _best_vertex(g, max)))
+	return _p0_dirac(g, _best_vertex(g, max))
 
 def p0_median(g):
 	"""
 	Given graph g. Returns Dirac delta distribution
 	at vertex with median degree.
 	"""
-	return _p0_dirac_gen(g, (lambda g: _best_vertex(g, np.median)))
+	return _p0_dirac(g, _best_vertex(g, np.median))
 
 def p0_mean(g):
 	"""
 	Given graph g. Returns Dirac delta distribution
 	at vertex with mean degree.
 	"""
-	return _p0_dirac_gen(g, (lambda g: _best_vertex(g, np.mean)))
-
-def p0_dirac(g, i):
-	"""
-	Given graph g. Returns Dirac delta distribution
-	at vertex i.
-	"""
-	return _p0_dirac_gen(g, (lambda g: i))
-
-def p0_unif(g):
-	"""
-	Given graph g. Returns uniform distribution.
-	"""
-	n = g.order()
-	return sp.csc_matrix((1/n)*np.identity(n))
+	return _p0_dirac(g, _best_vertex(g, np.mean))
 
 #
-# WALK2VEC VANILLA
+# WALK2VEC
 # 
 
 def embed(g, p0s, tau):
@@ -148,5 +120,5 @@ def embed(g, p0s, tau):
 	"""
 	phi = []
 	for i, p0_i in enumerate(p0s):
-		phi += [_feature(g, p0_i(g), tau)]
-	return np.concatenate(phi)
+		phi += _feature(g, p0_i(g), tau)
+	return phi
