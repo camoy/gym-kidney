@@ -23,18 +23,21 @@ class KidneyEnv(gym.Env):
 		self.chain_cap = 3
 		self.seed = None
 		self.episode_len = 100
+		self.init_distrs = [kc.p0_max, kc.p0_mean]
 
 		# seeds
 		# random.seed(self.seed)
 		# np.random.seed(self.seed)
 
 		# spaces
+		obs_size = len(self.init_distrs)*int((self.tau**2 + self.tau)/2)
 		self.action_space = spaces.Discrete(2)
 		self.observation_space = spaces.Box(
 			-np.inf,
 			np.inf,
-			(int((self.tau**2 + self.tau)/2),))
+			(obs_size,))
 
+		# reset
 		self._reset()
 
 	def _step(self, action):
