@@ -106,9 +106,9 @@ class ContrivedModel(_MixinModel):
 
 class HomogeneousModel(_MixinModel):
 	def __init__(self, rng, rate, k, p, p_a):
+		self.rng = rng
 		self.rate = rate
 		self.k = k
-		self.rng = rng
 		self.p = p
 		self.p_a = p_a
 
