@@ -21,13 +21,8 @@ class KidneyEnv(gym.Env):
 		self.death = 0.05
 		self.cycle_cap = 3
 		self.chain_cap = 3
-		self.seed = None
-		self.episode_len = 100
+		self.episode_len = 200
 		self.init_distrs = [kc.p0_max, kc.p0_mean]
-
-		# seeds
-		# random.seed(self.seed)
-		# np.random.seed(self.seed)
 
 		# spaces
 		obs_size = len(self.init_distrs)*int((self.tau**2 + self.tau)/2)
@@ -37,8 +32,15 @@ class KidneyEnv(gym.Env):
 			np.inf,
 			(obs_size,))
 
-		# reset
+		# initialize
+		self._seed()
+		#self.model = kc.ContrivedModel(self.rng)
+		self.model = kc.HomogeneousModel(self.rng, 25, 50, 0.05, 0.1)
 		self._reset()
+
+	def _seed(self, seed = None):
+		self.rng, seed = seeding.np_random(seed)
+		return [seed]
 
 	def _step(self, action):
 		reward = 0
@@ -57,12 +59,9 @@ class KidneyEnv(gym.Env):
 			reward = soln.total_score
 
 		# evolve
-		self.graph = kc.evolve(
+		self.graph = self.model.evolve(
 			self.graph,
 			match,
-			self.arrival,
-			self.death,
-			self.density,
 			self.tick)
 		self.tick = self.tick + 1
 
@@ -74,14 +73,12 @@ class KidneyEnv(gym.Env):
 	def _reset(self):
 		# state
 		self.tick = 0
-		self.graph = kc.reset(
-			self.n,
-			self.density)
+		self.graph = self.model.reset()
 		return self._get_obs()
 
 	def _get_obs(self):
 		# embed
-		return kc.embed(self.graph, [kc.p0_max, kc.p0_mean], self.tau)
+		return kc.embed(self.graph, self.init_distrs, self.tau)
 
 	def _render(self, mode = "human", close = False):
 		if close:
@@ -89,13 +86,16 @@ class KidneyEnv(gym.Env):
 		if self.tick == 0:
 			plt.ion()
 
+		# define colors
 		g = self.graph
 		attrs = nx.get_node_attributes(g, "altruist")
 		values = ["red" if attrs[v] else "blue" for v in g.nodes()]
 
+		# draw graph
 		plt.clf()
 		nx.draw(g,
 			pos = nx.circular_layout(g),
 			node_color = values)
 		plt.pause(0.01)
+
 		return []

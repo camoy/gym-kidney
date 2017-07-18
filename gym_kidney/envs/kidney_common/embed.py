@@ -62,10 +62,15 @@ def _best_vertex(g, f):
 	where v is the list of degrees.
 	"""
 	degs = g.degree()
+	pr = nx.pagerank(g)
 	k, v = list(degs.keys()), list(degs.values())
 	cf = f(v)
-	best_val = min(v, key=lambda x:abs(x-cf))
-	return k[v.index(best_val)]
+	best_val = min(v, key = lambda x: abs(x-cf))
+	cand = {}
+	for k, v in degs.items():
+		if v == best_val:
+			cand[k] = pr[k]
+	return max(cand, key = cand.get)
 
 def _p0_dirac(g, v):
 	"""
@@ -118,6 +123,12 @@ def embed(g, p0s, tau):
 	Given graph g, list of initial distribution generating
 	functions p0s, and walk cap tau. Returns embedding of g.
 	"""
+
+	# empty graph
+	if g.order() == 0:
+		return [0]*(int(len(p0s)*((tau**2+tau)/2)))
+
+	# non-empty graphs
 	phi = []
 	for i, p0_i in enumerate(p0s):
 		phi += _feature(g, p0_i(g), tau)
