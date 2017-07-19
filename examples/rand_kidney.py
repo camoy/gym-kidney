@@ -3,7 +3,7 @@ import gym_kidney
 
 EPISODES = 250
 FREQ = 10
-PATH = "/home/user/rand_kidney"
+OUT = "/home/user/rand_kidney"
 
 def main():
 	env = gym.make("kidney-v0")
@@ -13,7 +13,7 @@ def main():
 	        "p": 0.05,
 	        "p_a": 0.01
 	})
-	env = gym_kidney.LogWrapper(env, PATH, FREQ) 
+	env = gym_kidney.LogWrapper(env, OUT, FREQ) 
 
 	for i in range(EPISODES):
 		obs, done = env.reset(), False

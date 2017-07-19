@@ -9,11 +9,12 @@ class LogWrapper(Wrapper):
 		self._freq = freq
 		self._net_reward = 0
 		self._eps = 0
+		self._iter = 0
 
 	def _log_csv(self):
 		avg_reward = self._net_reward / self._eps
 		env = self.env.unwrapped
-		params = [env.seed, avg_reward] + env.model.log
+		params = [self._iter, env.seed, avg_reward] + env.model.log
 		params = list(map(str, params))
 		with open(self._path, "a") as f:
 			f.write("%s\n" % (",".join(params)))
@@ -29,4 +30,5 @@ class LogWrapper(Wrapper):
 			self._log_csv()
 			self._eps = 0
 			self._net_reward = 0
+			self._iter += 1
 		return self.env.reset()

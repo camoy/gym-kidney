@@ -4,7 +4,7 @@ from baselines import deepq
 
 EPISODES = 250
 FREQ = 10
-PATH = "/home/user/test_kidney"
+OUT = "/home/user/test_kidney"
 
 def main():
 	env = gym.make("kidney-v0")
@@ -14,7 +14,7 @@ def main():
 		"p": 0.05,
 		"p_a": 0.01
 	})
-	env = gym_kidney.LogWrapper(env, PATH, FREQ) 
+	env = gym_kidney.LogWrapper(env, OUT, FREQ) 
 	act = deepq.load("kidney_model.pkl")
 
 	for i in range(EPISODES):
