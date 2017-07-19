@@ -15,6 +15,8 @@ class _MixinModel:
 		Given graph g, and tuple of match structures m.
 		Removes vertices in match from g. Returns g.
 		"""
+		if len(m) == 0: return g
+
 		_, _, n_map, ndd_map = kc.relabel(g)
 		n_map = self._inv_map(n_map)
 		ndd_map = self._inv_map(ndd_map)
@@ -70,6 +72,7 @@ class _MixinModel:
 class ContrivedModel(_MixinModel):
 	def __init__(self, rng):
 		self.rng = rng
+		self.log = []
 
 	def reset(self):
 		"""
@@ -111,6 +114,7 @@ class HomogeneousModel(_MixinModel):
 		self.k = k
 		self.p = p
 		self.p_a = p_a
+		self.log = [rate, k, p, p_a]
 
 	def reset(self):
 		"""

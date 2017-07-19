@@ -1,35 +1,32 @@
 import gym
+from gym import Wrapper
 
-__all__ = ['LogWrapper']
+class LogWrapper(Wrapper):
+	def __init__(self, env, path, freq):
+		super(LogWrapper, self).__init__(env)
 
-def SkipWrapper(repeat_count):
-    class SkipWrapper(gym.Wrapper):
-        """
-            Generic common frame skipping wrapper
-            Will perform action for `x` additional steps
-        """
-        def __init__(self, env):
-            super(SkipWrapper, self).__init__(env)
-            self.repeat_count = repeat_count
-            self.stepcount = 0
+		self._path = path
+		self._freq = freq
+		self._net_reward = 0
+		self._eps = 0
 
-        def _step(self, action):
-            done = False
-            total_reward = 0
-            current_step = 0
-            while current_step < (self.repeat_count + 1) and not done:
-                self.stepcount += 1
-                obs, reward, done, info = self.env.step(action)
-                total_reward += reward
-                current_step += 1
-            if 'skip.stepcount' in info:
-                raise gym.error.Error('Key "skip.stepcount" already in info. Make sure you are not stacking ' \
-                                      'the SkipWrapper wrappers.')
-            info['skip.stepcount'] = self.stepcount
-            return obs, total_reward, done, info
+	def _log_csv(self):
+		avg_reward = self._net_reward / self._eps
+		env = self.env.unwrapped
+		params = [env.seed, avg_reward] + env.model.log
+		params = list(map(str, params))
+		with open(self._path, "a") as f:
+			f.write("%s\n" % (",".join(params)))
 
-        def _reset(self):
-            self.stepcount = 0
-            return self.env.reset()
+	def _step(self, action):
+		obs, reward, done, info = self.env.step(action)
+		self._net_reward += reward
+		return obs, reward, done, info
 
-    return SkipWrapper
+	def _reset(self):
+		self._eps += 1
+		if self._eps >= self._freq:
+			self._log_csv()
+			self._eps = 0
+			self._net_reward = 0
+		return self.env.reset()

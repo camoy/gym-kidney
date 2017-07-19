@@ -13,15 +13,11 @@ class KidneyEnv(gym.Env):
 	metadata = { "render.modes" : ["human"] }
 
 	def __init__(self):
-		# parameters
+		# default parameters
 		self.tau = 7
-		self.n = 64
-		self.density = 0.05
-		self.arrival = 0.66
-		self.death = 0.05
 		self.cycle_cap = 3
 		self.chain_cap = 3
-		self.episode_len = 200
+		self.eps_len = 200
 		self.init_distrs = [kc.p0_max, kc.p0_mean]
 
 		# spaces
@@ -34,11 +30,12 @@ class KidneyEnv(gym.Env):
 
 		# initialize
 		self._seed()
-		#self.model = kc.ContrivedModel(self.rng)
-		self.model = kc.HomogeneousModel(self.rng, 25, 50, 0.05, 0.1)
+		rate, k, p, pa = 25, 50, 0.05, 0.1
+		self.model = kc.HomogeneousModel(self.rng, rate, k, p, pa)
 		self._reset()
 
 	def _seed(self, seed = None):
+		self.seed = seed
 		self.rng, seed = seeding.np_random(seed)
 		return [seed]
 
@@ -67,7 +64,7 @@ class KidneyEnv(gym.Env):
 
 		# return values
 		embedding = self._get_obs()
-		done = self.tick >= self.episode_len
+		done = self.tick >= self.eps_len
 		return embedding, reward, done, {}
 
 	def _reset(self):
