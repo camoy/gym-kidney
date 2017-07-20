@@ -12,6 +12,9 @@ class LogWrapper(Wrapper):
 		self._iter = 0
 
 	def _log_csv(self):
+		"""
+		Appends average reward per episode to log file.
+		"""
 		avg_reward = self._net_reward / self._eps
 		env = self.env.unwrapped
 		params = [self._iter, env.seed, avg_reward] + env.model.log
@@ -20,11 +23,17 @@ class LogWrapper(Wrapper):
 			f.write("%s\n" % (",".join(params)))
 
 	def _step(self, action):
+		"""
+		Wraps step.
+		"""
 		obs, reward, done, info = self.env.step(action)
 		self._net_reward += reward
 		return obs, reward, done, info
 
 	def _reset(self):
+		"""
+		Wraps reset.
+		"""
 		self._eps += 1
 		if self._eps >= self._freq:
 			self._log_csv()

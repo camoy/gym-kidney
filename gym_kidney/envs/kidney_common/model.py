@@ -38,6 +38,10 @@ class _MixinModel:
 		return g
 
 	def _depart(self, g, n):
+		"""
+		Given graph g, and number n. Removes n random vertices
+		from g. Returns g.
+		"""
 		if n == 0: return g
 		leave = self.rng.choice(g.nodes(), n, replace = False).tolist()
 		g.remove_nodes_from(leave)
@@ -92,6 +96,11 @@ class HomogeneousModel(_MixinModel):
 		self.log = [rate, k, p, p_a]
 
 	def _arrive(self, g, n, p, p_a):
+		"""
+		Given graph g, number n, edge probability p, and NDD probability
+		p_a. Adds n new vertices to graph (NDD with probability p_a)
+		with edge probability p. Returns g.
+		"""
 		if n == 0: return g
 
 		n0 = g.order()
@@ -166,6 +175,14 @@ class HeterogeneousModel(_MixinModel):
 		self.log = [rate, k, p, p_l, p_h, p_a]
 
 	def _arrive(self, g, n, p, p_l, p_h, p_a):
+		"""
+		Given graph g, number n, high PRA probability p, low PRA edge
+		probability p_l, high PRA edge probability p_h, and NDD
+		probability p_a. Adds n new vertices to graph (NDD with
+		probability p_a, high PRA with probability p) with edge
+		probability p_l or p_h depending other vertices' PRA. Returns
+		g.
+		"""
 		if n == 0: return g
 
 		n0 = g.order()
@@ -253,6 +270,10 @@ class KidneyModel(_MixinModel):
 		nx.set_node_attributes(self.glob, "ndd", False)
 
 	def _arrive(self, g, n):
+		"""
+		Given graph g, number n. Adds n new vertices to graph according
+		to compatibility matrix. Returns g.
+		"""
 		if n == 0: return g
 
 		glob = self.glob
