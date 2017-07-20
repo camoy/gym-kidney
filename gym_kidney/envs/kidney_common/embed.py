@@ -7,16 +7,26 @@ import scipy.sparse as sp
 # MAIN FUNCTIONS
 #
 
-def _walks(w, p0, tau):
+def _alpha(g, alpha):
 	"""
-	Given transition matrix w, initial distribution
-	p0, and walk cap tau. Returns list ps, where
-	ps[t] is the distribution over vertices after
-	t steps.
+	Given graph g and vertex v. Returns Dirac
+	delta distribution at vertex v.
+	"""
+	n = g.order()
+	v = [alpha/n] * n
+	return sp.csc_matrix(v).T
+
+def _walks(g, w, p0, tau, alpha):
+	"""
+	Given graph g, transition matrix w, initial distribution
+	p0, jump probability alpha, and walk cap tau. Returns
+	list ps, where ps[t] is the distribution over vertices
+	after t steps.
 	"""
 	ps = [p0]
+	n = g.order()
 	for i in range(1, tau+1):
-		ps += [w * ps[i-1]]
+		ps += [_alpha(g, alpha) + (1-alpha)*w*ps[i-1]]
 	return ps
 
 def _degrees_inv(g):
@@ -36,15 +46,15 @@ def _trans(g, deg):
 	adj = nx.to_scipy_sparse_matrix(g, format = "csc")
 	return (deg * adj).T
 
-def _feature(g, p0, tau):
+def _feature(g, p0, tau, alpha):
 	"""
-	Given graph g, initial distribution p0, and walk
-	cap tau. Returns random walk feature vector (size
-	dependent only on tau).
+	Given graph g, initial distribution p0, jump probability
+	alpha, and walk cap tau. Returns random walk feature vector
+	(size dependent only on tau).
 	"""
 	n, m = g.order(), np.zeros((tau+1, tau+1))
 	deg_inv = _degrees_inv(g)
-	ps = _walks(_trans(g, deg_inv), p0, tau)
+	ps = _walks(g, _trans(g, deg_inv), p0, tau, alpha)
 	dsqrt = deg_inv.sqrt()
 	for s in range(tau):
 		for t in range(s+1, tau+1):
@@ -118,10 +128,11 @@ def p0_mean(g):
 # WALK2VEC
 # 
 
-def embed(g, p0s, tau):
+def embed(g, p0s, tau, alpha):
 	"""
 	Given graph g, list of initial distribution generating
-	functions p0s, and walk cap tau. Returns embedding of g.
+	functions p0s, jump probability alpha,and walk cap tau.
+	Returns embedding of g.
 	"""
 
 	# empty graph
@@ -131,5 +142,6 @@ def embed(g, p0s, tau):
 	# non-empty graphs
 	phi = []
 	for i, p0_i in enumerate(p0s):
-		phi += _feature(g, p0_i(g), tau)
+		phi += _feature(g, p0_i(g), tau, alpha)
+	print(phi)
 	return phi

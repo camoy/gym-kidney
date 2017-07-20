@@ -15,6 +15,7 @@ class KidneyEnv(gym.Env):
 	def __init__(self):
 		# default parameters
 		self.tau = 5
+		self.alpha = 0.05
 		self.cycle_cap = 3
 		self.chain_cap = 3
 		self.eps_len = 200
@@ -74,8 +75,10 @@ class KidneyEnv(gym.Env):
 		return self._get_obs()
 
 	def _get_obs(self):
+		graph, init_distrs = self.graph, self.init_distrs
+		tau, alpha = self.tau, self.alpha
 		# embed
-		return kc.embed(self.graph, self.init_distrs, self.tau)
+		return kc.embed(graph, init_distrs, tau, alpha)
 
 	def _render(self, mode = "human", close = False):
 		if close:
