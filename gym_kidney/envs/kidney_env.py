@@ -14,7 +14,7 @@ class KidneyEnv(gym.Env):
 
 	def __init__(self):
 		# default parameters
-		self.tau = 7
+		self.tau = 5
 		self.cycle_cap = 3
 		self.chain_cap = 3
 		self.eps_len = 200
@@ -85,7 +85,7 @@ class KidneyEnv(gym.Env):
 
 		# define colors
 		g = self.graph
-		attrs = nx.get_node_attributes(g, "altruist")
+		attrs = nx.get_node_attributes(g, "ndd")
 		values = ["red" if attrs[v] else "blue" for v in g.nodes()]
 
 		# draw graph

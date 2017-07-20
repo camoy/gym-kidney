@@ -37,31 +37,6 @@ class _MixinModel:
 
 		return g
 
-	def _arrive(self, g, n, p, p_a):
-		if n == 0: return g
-
-		n0 = g.order()
-		new = list(range(n0, n0+n))
-		g.add_nodes_from(new, altruist = False)
-		attrs = nx.get_node_attributes(g, "altruist")
-
-		for u in new:
-			ualt = self.rng.rand() < p_a
-			if ualt:
-				s = { u : True }
-				nx.set_node_attributes(g, "altruist", s)
-				attrs[u] = True
-
-			for v in g.nodes():
-				valt = attrs[v]
-				if u == v: continue
-				if self.rng.rand() < p and not valt:
-					g.add_edge(u, v)
-				if self.rng.rand() < p and not ualt:
-					g.add_edge(v, u)
-
-		return g
-
 	def _depart(self, g, n):
 		if n == 0: return g
 		leave = self.rng.choice(g.nodes(), n, replace = False).tolist()
@@ -79,7 +54,7 @@ class ContrivedModel(_MixinModel):
 		Returns contrived graph at initial state.
 		"""
 		g = nx.DiGraph([(0, 1)])
-		nx.set_node_attributes(g, "altruist", { 0 : True, 1 : False })
+		nx.set_node_attributes(g, "ndd", { 0 : True, 1 : False })
 		return g
 
 	def evolve(self, g, m, i):
@@ -94,13 +69,13 @@ class ContrivedModel(_MixinModel):
 
 			# unmatched chain
 			if g.has_node(1):
-				g.add_nodes_from([2, 3], altruist = False)
+				g.add_nodes_from([2, 3], ndd = False)
 				g.add_edge(2, 3)
 				g.add_edge(1, 2)
 			# empty graph
 			else:
 				g = nx.DiGraph([(0, 1)])
-				nx.set_node_attributes(g, "altruist", False)
+				nx.set_node_attributes(g, "ndd", False)
 
 			return g
 		# reset on odd ticks
@@ -115,6 +90,35 @@ class HomogeneousModel(_MixinModel):
 		self.p = p
 		self.p_a = p_a
 		self.log = [rate, k, p, p_a]
+
+	def _arrive(self, g, n, p, p_a):
+		if n == 0: return g
+
+		n0 = g.order()
+		new = list(range(n0, n0+n))
+		g.add_nodes_from(new, ndd = False)
+		attr_ndd = nx.get_node_attributes(g, "ndd")
+
+		for u in new:
+			# NDD
+			ualt = self.rng.rand() < p_a
+			if ualt:
+				s = { u : True }
+				nx.set_node_attributes(g, "ndd", s)
+				attr_ndd[u] = True
+
+		# edges
+		for u in new:
+			ualt = attr_ndd[u]
+			for v in g.nodes():
+				if u == v: continue
+				valt = attr_ndd[v]
+				if self.rng.rand() < p and not valt:
+					g.add_edge(u, v)
+				if self.rng.rand() < p and not ualt:
+					g.add_edge(v, u)
+
+		return g
 
 	def reset(self):
 		"""
@@ -149,3 +153,147 @@ class HomogeneousModel(_MixinModel):
 		g = self._depart(g, d)
 
 		return g
+
+class HeterogeneousModel(_MixinModel):
+	def __init__(self, rng, rate, k, p, p_l, p_h, p_a):
+		self.rng = rng
+		self.rate = rate
+		self.k = k
+		self.p = p
+		self.p_l = p_l
+		self.p_h = p_h
+		self.p_a = p_a
+		self.log = [rate, k, p, p_l, p_h, p_a]
+
+	def _arrive(self, g, n, p, p_l, p_h, p_a):
+		if n == 0: return g
+
+		n0 = g.order()
+		new = list(range(n0, n0+n))
+		g.add_nodes_from(new, ndd = False)
+		attr_ndd = nx.get_node_attributes(g, "ndd")
+		attr_pra = nx.get_node_attributes(g, "pra")
+
+		for u in new:
+			# NDD
+			ualt = self.rng.rand() < p_a
+			if ualt:
+				s = { u : True }
+				nx.set_node_attributes(g, "ndd", s)
+				attr_ndd[u] = True
+
+			# PRA
+			uhigh = self.rng.rand() < p
+			val = "high" if uhigh else "low"
+			s = { u : val }
+			nx.set_node_attributes(g, "pra", "high")
+			attr_pra[u] = val
+
+		# edges
+		for u in new:
+			ualt = attr_ndd[u]
+			uhigh = attr_pra[u] == "high"
+			for v in g.nodes():
+				if u == v: continue
+				valt = attr_ndd[v]
+				vhigh = attr_pra[v] == "high"
+				p_v = p_h if vhigh else p_l
+				p_u = p_h if uhigh else p_l
+				if self.rng.rand() < p_v and not valt:
+					g.add_edge(u, v)
+				if self.rng.rand() < p_u and not ualt:
+					g.add_edge(v, u)
+
+		return g
+
+	def reset(self):
+		"""
+		Returns heterogeneous graph at initial state (empty graph).
+		"""
+		return nx.DiGraph()
+
+	def evolve(self, g, m, i):
+		"""
+		Given graph g, matching m, and tick i. Evolves heterogeneous
+		graph based. Returns g.
+		"""
+
+		# match
+		g = self._process_matches(g, m)
+
+		# arrival
+		a_n = math.floor(self.rate/(self.k-1) + 0.5)
+		if a_n == 0:
+			a_n = 1
+			a_p = self.rate/self.k
+		else:
+			a_p = (self.k-1)/self.k
+
+		a = self.rng.binomial(a_n, a_p)
+		g = self._arrive(g, a, self.p, self.p_l, self.p_h, self.p_a)
+
+		# departure
+		d_n = len(g.nodes())
+		d_p = 1/self.k
+		d = self.rng.binomial(d_n, d_p)
+		g = self._depart(g, d)
+
+		return g
+
+class KidneyModel(_MixinModel):
+	def __init__(self, rng, rate, k, data):
+		self.rng = rng
+		self.rate = rate
+		self.k = k
+		self.log = [rate, k]
+
+		adj = np.loadtxt(data, delimiter = ",")
+		self.glob = nx.DiGraph()
+		self.glob = nx.from_numpy_matrix(adj, create_using = self.glob)
+		nx.set_node_attributes(self.glob, "ndd", False)
+
+	def _arrive(self, g, n):
+		if n == 0: return g
+
+		glob = self.glob
+		nodes = list(set(glob.nodes()) - set(g.nodes()))
+		ns = self.rng.choice(nodes, n, replace = False).tolist()
+		g = glob.subgraph(g.nodes() + ns)
+		g = nx.convert_node_labels_to_integers(g)
+
+		return g
+
+	def reset(self):
+		"""
+		Returns homogeneous graph at initial state (empty graph).
+		"""
+		return nx.DiGraph()
+
+	def evolve(self, g, m, i):
+		"""
+		Given graph g, matching m, and tick i. Evolves homogeneous
+		graph based. Returns g.
+		"""
+
+		# match
+		g = self._process_matches(g, m)
+
+		# arrival
+		a_n = math.floor(self.rate/(self.k-1) + 0.5)
+		if a_n == 0:
+			a_n = 1
+			a_p = self.rate/self.k
+		else:
+			a_p = (self.k-1)/self.k
+
+		a = self.rng.binomial(a_n, a_p)
+		g = self._arrive(g, a)
+
+		# departure
+		d_n = len(g.nodes())
+		d_p = 1/self.k
+		d = self.rng.binomial(d_n, d_p)
+		g = self._depart(g, d)
+
+		return g
+

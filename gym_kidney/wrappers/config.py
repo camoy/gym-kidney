@@ -11,7 +11,9 @@ init_distrs = {
 
 models = {
 	"contrived": kc.ContrivedModel,
-	"homogeneous": kc.HomogeneousModel
+	"homogeneous": kc.HomogeneousModel,
+	"heterogeneous": kc.HeterogeneousModel,
+	"kidney": kc.KidneyModel
 }
 
 class ConfigWrapper(Wrapper):

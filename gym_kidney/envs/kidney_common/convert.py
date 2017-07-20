@@ -9,7 +9,7 @@ def relabel(g):
 	"""
 	n, n_ndds = 0, 0
 	n_map, ndd_map = {}, {}
-	attrs = nx.get_node_attributes(g, "altruist")
+	attrs = nx.get_node_attributes(g, "ndd")
 
 	# separate altruists
 	for u in g.nodes_iter():
@@ -29,7 +29,7 @@ def nx_to_ks(g):
 	solver.
 	"""
 	n, n_ndds, n_map, ndd_map = relabel(g)
-	attrs = nx.get_node_attributes(g, "altruist")
+	attrs = nx.get_node_attributes(g, "ndd")
 
 	# digraph
 	digraph = ks.Digraph(n)
