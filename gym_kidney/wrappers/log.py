@@ -17,7 +17,15 @@ class LogWrapper(Wrapper):
 		"""
 		avg_reward = self._net_reward / self._eps
 		env = self.env.unwrapped
-		params = [self._iter, env.seed, avg_reward] + env.model.log
+		params = [
+			self._iter,
+			env.seed,
+			env.tau,
+			env.cycle_cap,
+			env.chain_cap,
+			avg_reward
+		]
+		params = params + env.model.log
 		params = list(map(str, params))
 		with open(self._path, "a") as f:
 			f.write("%s\n" % (",".join(params)))

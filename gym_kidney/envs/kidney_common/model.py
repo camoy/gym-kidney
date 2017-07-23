@@ -10,6 +10,17 @@ class _MixinModel:
 		"""
 		return dict((v, k) for k, v in d.items())
 
+	def _inv_map_2(self, d):
+		"""
+		Given dictionary d with possible non-unique values.
+		Returns inverse dictionary.
+		"""
+		inv_map = {}
+		for k, v in d.items():
+			inv_map[v] = inv_map.get(v, [])
+			inv_map[v].append(k)
+		return inv_map
+
 	def _process_matches(self, g, m):
 		"""
 		Given graph g, and tuple of match structures m.
@@ -232,7 +243,7 @@ class HeterogeneousModel(_MixinModel):
 	def evolve(self, g, m, i):
 		"""
 		Given graph g, matching m, and tick i. Evolves heterogeneous
-		graph based. Returns g.
+		graph. Returns g.
 		"""
 
 		# match
@@ -263,11 +274,11 @@ class KidneyModel(_MixinModel):
 		self.rate = rate
 		self.k = k
 		self.log = [rate, k]
+		self.label_map = {}
 
 		adj = np.loadtxt(data, delimiter = ",")
 		self.glob = nx.DiGraph()
 		self.glob = nx.from_numpy_matrix(adj, create_using = self.glob)
-		nx.set_node_attributes(self.glob, "ndd", False)
 
 	def _arrive(self, g, n):
 		"""
@@ -276,24 +287,48 @@ class KidneyModel(_MixinModel):
 		"""
 		if n == 0: return g
 
-		glob = self.glob
-		nodes = list(set(glob.nodes()) - set(g.nodes()))
-		ns = self.rng.choice(nodes, n, replace = False).tolist()
-		g = glob.subgraph(g.nodes() + ns)
-		g = nx.convert_node_labels_to_integers(g)
+		glob, lm = self.glob, self.label_map
+		nodes = glob.nodes()
+		ns = self.rng.choice(nodes, n, replace = True).tolist()
+
+		# add vertices
+		n0 = g.order()
+		new = list(range(n0, n0+n))
+		for i, u in enumerate(new):
+			g.add_node(u, ndd = False)
+			lm[u] = ns[i]
+
+		# add out edges
+		lmi = self._inv_map_2(lm)
+		for u in new:
+			gid = lm[u]
+			for vs in list(map(lmi.get, glob.successors(gid))):
+				if vs == None: continue
+				for v in vs:
+					if v in g.nodes():
+						g.add_edge(u, v)
+
+		# add in edges
+		for u in new:
+			gid = lm[u]
+			for v in list(map(lmi.get, glob.predecessors(gid))):
+				if vs == None: continue
+				for v in vs:
+					if v in g.nodes():
+						g.add_edge(v, u)
 
 		return g
 
 	def reset(self):
 		"""
-		Returns homogeneous graph at initial state (empty graph).
+		Returns kidney graph at initial state (empty graph).
 		"""
 		return nx.DiGraph()
 
 	def evolve(self, g, m, i):
 		"""
-		Given graph g, matching m, and tick i. Evolves homogeneous
-		graph based. Returns g.
+		Given graph g, matching m, and tick i. Evolves kidney
+		graph. Returns g.
 		"""
 
 		# match

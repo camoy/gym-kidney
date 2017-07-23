@@ -22,6 +22,7 @@ class ConfigWrapper(Wrapper):
 
 		# environment parameters
 		if "tau" in p: self.env.tau = p.pop("tau")
+		if "alpha" in p: self.env.alpha = p.pop("alpha")
 		if "eps_len" in p: self.env.eps_len = p.pop("eps_len")
 		if "cycle_cap" in p: self.env.cycle_cap = p.pop("cycle_cap")
 		if "chain_cap" in p: self.env.chain_cap = p.pop("chain_cap")
