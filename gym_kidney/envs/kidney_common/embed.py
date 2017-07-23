@@ -26,7 +26,7 @@ def _walks(g, w, p0, tau, alpha):
 	ps = [p0]
 	n = g.order()
 	for i in range(1, tau+1):
-		ps += [_alpha(g, alpha) + (1-alpha)*w*ps[i-1]]
+		ps += [(_alpha(g, alpha) + (1-alpha)*w*ps[i-1])]
 	return ps
 
 def _degrees_inv(g):
@@ -46,20 +46,27 @@ def _trans(g, deg):
 	adj = nx.to_scipy_sparse_matrix(g, format = "csc")
 	return (deg * adj).T
 
+def _kl_sym_div(p, q):
+	with np.errstate(divide = "ignore", invalid = "ignore"):
+		pq_log = np.ma.log(np.nan_to_num(p / q))
+		qp_log = np.ma.log(np.nan_to_num(q / p))
+		s1 = p.T.dot(pq_log.filled(0)).item(0)
+		s2 = q.T.dot(qp_log.filled(0)).item(0)
+		return s1 + s2
+
 def _feature(g, p0, tau, alpha):
 	"""
 	Given graph g, initial distribution p0, jump probability
 	alpha, and walk cap tau. Returns random walk feature vector
 	(size dependent only on tau).
 	"""
-	n, m = g.order(), np.zeros((tau+1, tau+1))
+	n, m = g.order(), []
 	deg_inv = _degrees_inv(g)
 	ps = _walks(g, _trans(g, deg_inv), p0, tau, alpha)
-	dsqrt = deg_inv.sqrt()
 	for s in range(tau):
 		for t in range(s+1, tau+1):
-			m[s, t] = sp.linalg.norm(dsqrt*ps[s] - dsqrt*ps[t])
-	return m[np.triu_indices(tau+1, 1)].tolist()
+			m += [_kl_sym_div(ps[s], ps[t])]
+	return m
 
 #
 # INITIAL DISTRIBUTIONS HELPERS
@@ -72,15 +79,10 @@ def _best_vertex(g, f):
 	where v is the list of degrees.
 	"""
 	degs = g.degree()
-	pr = nx.pagerank(g)
 	k, v = list(degs.keys()), list(degs.values())
 	cf = f(v)
 	best_val = min(v, key = lambda x: abs(x-cf))
-	cand = {}
-	for k, v in degs.items():
-		if v == best_val:
-			cand[k] = pr[k]
-	return max(cand, key = cand.get)
+	return k[v.index(best_val)]
 
 def _p0_dirac(g, v):
 	"""
@@ -143,5 +145,4 @@ def embed(g, p0s, tau, alpha):
 	phi = []
 	for i, p0_i in enumerate(p0s):
 		phi += _feature(g, p0_i(g), tau, alpha)
-	print(phi)
 	return phi
