@@ -18,7 +18,7 @@ class KidneyEnv(gym.Env):
 		self.alpha = 0.05
 		self.cycle_cap = 3
 		self.chain_cap = 3
-		self.eps_len = 200
+		self.eps_len = 10
 		self.init_distrs = [kc.p0_max, kc.p0_mean]
 
 		# spaces
@@ -57,7 +57,7 @@ class KidneyEnv(gym.Env):
 			reward = soln.total_score
 
 		# evolve
-		self.graph = self.model.evolve(
+		self.changed, self.graph = self.model.evolve(
 			self.graph,
 			match,
 			self.tick)
@@ -71,14 +71,22 @@ class KidneyEnv(gym.Env):
 	def _reset(self):
 		# state
 		self.tick = 0
+		self.changed = True
 		self.graph = self.model.reset()
+		self.eps_len *= self.model.n
 		return self._get_obs()
 
 	def _get_obs(self):
-		graph, init_distrs = self.graph, self.init_distrs
-		tau, alpha = self.tau, self.alpha
-		# embed
-		return kc.embed(graph, init_distrs, tau, alpha)
+		if self.changed:
+			graph, init_distrs = self.graph, self.init_distrs
+			tau, alpha = self.tau, self.alpha
+
+			# new embedding
+			self.changed = False
+			self.lembed = kc.embed(graph, init_distrs, tau, alpha)
+
+		# return cached embedding
+		return self.lembed
 
 	def _render(self, mode = "human", close = False):
 		if close:

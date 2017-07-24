@@ -53,11 +53,11 @@ class _MixinModel:
 		Given graph g, and number n. Removes n random vertices
 		from g. Returns g.
 		"""
-		if n == 0: return g
+		if n == 0: return False, g
 		leave = self.rng.choice(g.nodes(), n, replace = False).tolist()
 		g.remove_nodes_from(leave)
 		g = nx.convert_node_labels_to_integers(g)
-		return g
+		return True, g
 
 class ContrivedModel(_MixinModel):
 	def __init__(self, rng):
@@ -98,13 +98,17 @@ class ContrivedModel(_MixinModel):
 			return self.reset()
 
 class HomogeneousModel(_MixinModel):
-	def __init__(self, rng, rate, k, p, p_a):
+	def __init__(self, rng, rate, d, p_t, p_a):
 		self.rng = rng
 		self.rate = rate
-		self.k = k
-		self.p = p
+		self.d = d
+		self.p_t = p_t
 		self.p_a = p_a
-		self.log = [rate, k, p, p_a]
+		self.log = [rate, d, p_t, p_a]
+
+		self.n = rate / p_t
+		self.p = d / rate
+		self.p_d = p_t / rate
 
 	def _arrive(self, g, n, p, p_a):
 		"""
@@ -112,7 +116,7 @@ class HomogeneousModel(_MixinModel):
 		p_a. Adds n new vertices to graph (NDD with probability p_a)
 		with edge probability p. Returns g.
 		"""
-		if n == 0: return g
+		if n == 0: return False, g
 
 		n0 = g.order()
 		new = list(range(n0, n0+n))
@@ -138,7 +142,7 @@ class HomogeneousModel(_MixinModel):
 				if self.rng.rand() < p and not ualt:
 					g.add_edge(v, u)
 
-		return g
+		return True, g
 
 	def reset(self):
 		"""
@@ -156,34 +160,34 @@ class HomogeneousModel(_MixinModel):
 		g = self._process_matches(g, m)
 
 		# arrival
-		a_n = math.floor(self.rate/(self.k-1) + 0.5)
-		if a_n == 0:
-			a_n = 1
-			a_p = self.rate/self.k
-		else:
-			a_p = (self.k-1)/self.k
+		a_n = 1
+		a_p = self.p_t
 
 		a = self.rng.binomial(a_n, a_p)
-		g = self._arrive(g, a, self.p, self.p_a)
+		changed1, g = self._arrive(g, a, self.p, self.p_a)
 
 		# departure
 		d_n = len(g.nodes())
-		d_p = 1/self.k
-		d = self.rng.binomial(d_n, d_p)
-		g = self._depart(g, d)
+		d = self.rng.binomial(d_n, self.p_d)
+		changed2, g = self._depart(g, d)
 
-		return g
+		return changed1 or changed2, g
 
 class HeterogeneousModel(_MixinModel):
-	def __init__(self, rng, rate, k, p, p_l, p_h, p_a):
+	def __init__(self, rng, rate, d_l, d_h, p_s, p_t, p_a):
 		self.rng = rng
 		self.rate = rate
-		self.k = k
-		self.p = p
-		self.p_l = p_l
-		self.p_h = p_h
+		self.d_l = d_l
+		self.d_h = d_h
+		self.p_s = p_s
+		self.p_t = p_t
 		self.p_a = p_a
-		self.log = [rate, k, p, p_l, p_h, p_a]
+		self.log = [rate, d_l, d_h, p_s, p_t, p_a]
+
+		self.n = rate / p_t
+		self.p_l = d_l / rate
+		self.p_h = d_h / rate
+		self.p_d = p_t / rate
 
 	def _arrive(self, g, n, p, p_l, p_h, p_a):
 		"""
@@ -194,7 +198,7 @@ class HeterogeneousModel(_MixinModel):
 		probability p_l or p_h depending other vertices' PRA. Returns
 		g.
 		"""
-		if n == 0: return g
+		if n == 0: return False, g
 
 		n0 = g.order()
 		new = list(range(n0, n0+n))
@@ -232,7 +236,7 @@ class HeterogeneousModel(_MixinModel):
 				if self.rng.rand() < p_u and not ualt:
 					g.add_edge(v, u)
 
-		return g
+		return True, g
 
 	def reset(self):
 		"""
@@ -250,31 +254,35 @@ class HeterogeneousModel(_MixinModel):
 		g = self._process_matches(g, m)
 
 		# arrival
-		a_n = math.floor(self.rate/(self.k-1) + 0.5)
-		if a_n == 0:
-			a_n = 1
-			a_p = self.rate/self.k
-		else:
-			a_p = (self.k-1)/self.k
+		a_n = 1
+		a_p = self.p_t
 
 		a = self.rng.binomial(a_n, a_p)
-		g = self._arrive(g, a, self.p, self.p_l, self.p_h, self.p_a)
+		changed1, g = self._arrive(
+			g,
+			a,
+			self.p_s,
+			self.p_l,
+			self.p_h,
+			self.p_a)
 
 		# departure
 		d_n = len(g.nodes())
-		d_p = 1/self.k
-		d = self.rng.binomial(d_n, d_p)
-		g = self._depart(g, d)
+		d = self.rng.binomial(d_n, self.p_d)
+		changed2, g = self._depart(g, d)
 
-		return g
+		return changed1 or changed2, g
 
 class KidneyModel(_MixinModel):
-	def __init__(self, rng, rate, k, data):
+	def __init__(self, rng, rate, p_t, data):
 		self.rng = rng
 		self.rate = rate
-		self.k = k
-		self.log = [rate, k]
+		self.p_t = p_t
+		self.log = [rate, p_t]
 		self.label_map = {}
+
+		self.n = rate / p_t
+		self.p_d = p_t / rate
 
 		adj = np.loadtxt(data, delimiter = ",")
 		self.glob = nx.DiGraph()
@@ -285,7 +293,7 @@ class KidneyModel(_MixinModel):
 		Given graph g, number n. Adds n new vertices to graph according
 		to compatibility matrix. Returns g.
 		"""
-		if n == 0: return g
+		if n == 0: return False, g
 
 		glob, lm = self.glob, self.label_map
 		nodes = glob.nodes()
@@ -317,7 +325,7 @@ class KidneyModel(_MixinModel):
 					if v in g.nodes():
 						g.add_edge(v, u)
 
-		return g
+		return True, g
 
 	def reset(self):
 		"""
@@ -335,21 +343,16 @@ class KidneyModel(_MixinModel):
 		g = self._process_matches(g, m)
 
 		# arrival
-		a_n = math.floor(self.rate/(self.k-1) + 0.5)
-		if a_n == 0:
-			a_n = 1
-			a_p = self.rate/self.k
-		else:
-			a_p = (self.k-1)/self.k
+		a_n = 1
+		a_p = self.p_t
 
 		a = self.rng.binomial(a_n, a_p)
-		g = self._arrive(g, a)
+		changed1, g = self._arrive(g, a)
 
 		# departure
 		d_n = len(g.nodes())
-		d_p = 1/self.k
-		d = self.rng.binomial(d_n, d_p)
-		g = self._depart(g, d)
+		d = self.rng.binomial(d_n, self.p_d)
+		changed2, g = self._depart(g, d)
 
-		return g
+		return changed1 or changed2, g
 
