@@ -8,10 +8,11 @@ def callback(lcl, glb):
 def main():
 	env = gym.make("kidney-v0")
 	env = gym_kidney.ConfigWrapper(env, "homogeneous", {
-		"rate": 25,
-		"k": 50,
-		"p": 0.05,
-		"p_a": 0.01
+	        "m": 1460,
+	        "k": 24,
+	        "d": 326,
+		"t": 5,
+	        "p_a": 0.01
 	})
 	model = deepq.models.mlp([64,64,64])
 	act = deepq.learn(

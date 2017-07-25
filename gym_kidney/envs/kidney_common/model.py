@@ -59,9 +59,33 @@ class _MixinModel:
 		g = nx.convert_node_labels_to_integers(g)
 		return True, g
 
+	def evolve(self, g, m, i):
+		"""
+		Given graph g, matching m, and tick i. Evolves graph.
+		Returns g.
+		"""
+
+		# match
+		g = self._process_matches(g, m)
+
+		# arrival
+		a_n = self.m / (self.k-1)
+		a_p = (self.k-1) / self.k
+
+		a = self.rng.binomial(a_n, a_p)
+		changed1, g = self._arrive(g, a)
+
+		# departure
+		d_n = len(g.nodes())
+		d = self.rng.binomial(d_n, 1 / self.k)
+		changed2, g = self._depart(g, d)
+
+		return changed1 or changed2, g
+
 class ContrivedModel(_MixinModel):
 	def __init__(self, rng):
 		self.rng = rng
+		self.k = 10
 		self.log = []
 
 	def reset(self):
@@ -98,19 +122,19 @@ class ContrivedModel(_MixinModel):
 			return self.reset()
 
 class HomogeneousModel(_MixinModel):
-	def __init__(self, rng, rate, d, p_t, p_a):
+	def __init__(self, rng,  m, k, d, p_a):
+		# parameters
 		self.rng = rng
-		self.rate = rate
+		self.m = m
+		self.k = k
 		self.d = d
-		self.p_t = p_t
 		self.p_a = p_a
-		self.log = [rate, d, p_t, p_a]
 
-		self.n = rate / p_t
-		self.p = d / rate
-		self.p_d = p_t / rate
+		# calculated
+		self.log = [m, k, d, p_a]
+		self.p = d / m
 
-	def _arrive(self, g, n, p, p_a):
+	def _arrive(self, g, n):
 		"""
 		Given graph g, number n, edge probability p, and NDD probability
 		p_a. Adds n new vertices to graph (NDD with probability p_a)
@@ -118,6 +142,7 @@ class HomogeneousModel(_MixinModel):
 		"""
 		if n == 0: return False, g
 
+		p, p_a = self.p, self.p_a
 		n0 = g.order()
 		new = list(range(n0, n0+n))
 		g.add_nodes_from(new, ndd = False)
@@ -150,46 +175,23 @@ class HomogeneousModel(_MixinModel):
 		"""
 		return nx.DiGraph()
 
-	def evolve(self, g, m, i):
-		"""
-		Given graph g, matching m, and tick i. Evolves homogeneous
-		graph based. Returns g.
-		"""
-
-		# match
-		g = self._process_matches(g, m)
-
-		# arrival
-		a_n = 1
-		a_p = self.p_t
-
-		a = self.rng.binomial(a_n, a_p)
-		changed1, g = self._arrive(g, a, self.p, self.p_a)
-
-		# departure
-		d_n = len(g.nodes())
-		d = self.rng.binomial(d_n, self.p_d)
-		changed2, g = self._depart(g, d)
-
-		return changed1 or changed2, g
-
 class HeterogeneousModel(_MixinModel):
-	def __init__(self, rng, rate, d_l, d_h, p_s, p_t, p_a):
+	def __init__(self, rng,  m, k, d_l, d_h, p_s, p_a):
+		# parameters
 		self.rng = rng
-		self.rate = rate
+		self.m = m
+		self.k = k
 		self.d_l = d_l
 		self.d_h = d_h
 		self.p_s = p_s
-		self.p_t = p_t
 		self.p_a = p_a
-		self.log = [rate, d_l, d_h, p_s, p_t, p_a]
 
-		self.n = rate / p_t
-		self.p_l = d_l / rate
-		self.p_h = d_h / rate
-		self.p_d = p_t / rate
+		# calculated
+		self.log = [m, d_l, d_h, p_s, p_a]
+		self.p_l = d_l / m
+		self.p_h = d_h / m
 
-	def _arrive(self, g, n, p, p_l, p_h, p_a):
+	def _arrive(self, g, n):
 		"""
 		Given graph g, number n, high PRA probability p, low PRA edge
 		probability p_l, high PRA edge probability p_h, and NDD
@@ -200,6 +202,7 @@ class HeterogeneousModel(_MixinModel):
 		"""
 		if n == 0: return False, g
 
+		p, p_l, p_h, p_a = self.p, self.p_l, self.p_h, self.p_a
 		n0 = g.order()
 		new = list(range(n0, n0+n))
 		g.add_nodes_from(new, ndd = False)
@@ -244,46 +247,19 @@ class HeterogeneousModel(_MixinModel):
 		"""
 		return nx.DiGraph()
 
-	def evolve(self, g, m, i):
-		"""
-		Given graph g, matching m, and tick i. Evolves heterogeneous
-		graph. Returns g.
-		"""
-
-		# match
-		g = self._process_matches(g, m)
-
-		# arrival
-		a_n = 1
-		a_p = self.p_t
-
-		a = self.rng.binomial(a_n, a_p)
-		changed1, g = self._arrive(
-			g,
-			a,
-			self.p_s,
-			self.p_l,
-			self.p_h,
-			self.p_a)
-
-		# departure
-		d_n = len(g.nodes())
-		d = self.rng.binomial(d_n, self.p_d)
-		changed2, g = self._depart(g, d)
-
-		return changed1 or changed2, g
 
 class KidneyModel(_MixinModel):
-	def __init__(self, rng, rate, p_t, data):
+	def __init__(self, rng,  m, k, data):
+		# parameters
 		self.rng = rng
-		self.rate = rate
-		self.p_t = p_t
-		self.log = [rate, p_t]
+		self.m = m
+		self.k = k
+
+		# calculated
+		self.log = [m, k]
+
+		# setup
 		self.label_map = {}
-
-		self.n = rate / p_t
-		self.p_d = p_t / rate
-
 		adj = np.loadtxt(data, delimiter = ",")
 		self.glob = nx.DiGraph()
 		self.glob = nx.from_numpy_matrix(adj, create_using = self.glob)
@@ -332,27 +308,3 @@ class KidneyModel(_MixinModel):
 		Returns kidney graph at initial state (empty graph).
 		"""
 		return nx.DiGraph()
-
-	def evolve(self, g, m, i):
-		"""
-		Given graph g, matching m, and tick i. Evolves kidney
-		graph. Returns g.
-		"""
-
-		# match
-		g = self._process_matches(g, m)
-
-		# arrival
-		a_n = 1
-		a_p = self.p_t
-
-		a = self.rng.binomial(a_n, a_p)
-		changed1, g = self._arrive(g, a)
-
-		# departure
-		d_n = len(g.nodes())
-		d = self.rng.binomial(d_n, self.p_d)
-		changed2, g = self._depart(g, d)
-
-		return changed1 or changed2, g
-

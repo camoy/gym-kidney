@@ -8,9 +8,10 @@ OUT = "/home/user/greedy_kidney"
 def main():
 	env = gym.make("kidney-v0")
 	env = gym_kidney.ConfigWrapper(env, "homogeneous", {
-	        "rate": 25,
-	        "k": 50,
-	        "p": 0.05,
+	        "m": 1460,
+	        "k": 24,
+	        "d": 326,
+		"t": 5,
 	        "p_a": 0.01
 	})
 	env = gym_kidney.LogWrapper(env, OUT, FREQ) 

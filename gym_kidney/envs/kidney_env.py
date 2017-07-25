@@ -18,7 +18,7 @@ class KidneyEnv(gym.Env):
 		self.alpha = 0.05
 		self.cycle_cap = 3
 		self.chain_cap = 3
-		self.eps_len = 10
+		self.t = 5
 		self.init_distrs = [kc.p0_max, kc.p0_mean]
 
 		# spaces
@@ -31,8 +31,7 @@ class KidneyEnv(gym.Env):
 
 		# initialize
 		self._seed()
-		rate, k, p, pa = 25, 50, 0.05, 0.1
-		self.model = kc.HomogeneousModel(self.rng, rate, k, p, pa)
+		self.model = kc.ContrivedModel(self.rng)
 		self._reset()
 
 	def _seed(self, seed = None):
@@ -73,7 +72,7 @@ class KidneyEnv(gym.Env):
 		self.tick = 0
 		self.changed = True
 		self.graph = self.model.reset()
-		self.eps_len *= self.model.n
+		self.eps_len = self.model.k * self.t
 		return self._get_obs()
 
 	def _get_obs(self):
