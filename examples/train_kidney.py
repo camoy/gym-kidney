@@ -10,8 +10,8 @@ def main():
 	env = gym_kidney.ConfigWrapper(env, "homogeneous", {
 	        "m": 1460,
 	        "k": 24,
-	        "d": 326,
-		"t": 5,
+	        "d": 163,
+		"t": 3,
 	        "p_a": 0.01
 	})
 	model = deepq.models.mlp([64,64,64])
