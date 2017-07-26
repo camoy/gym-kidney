@@ -69,15 +69,15 @@ class _MixinModel:
 		g = self._process_matches(g, m)
 
 		# arrival
-		a_n = self.m / (self.k-1)
-		a_p = (self.k-1) / self.k
+		a_n = self.m / (self.k-1.0)
+		a_p = (self.k-1.0) / self.k
 
 		a = self.rng.binomial(a_n, a_p)
 		changed1, g = self._arrive(g, a)
 
 		# departure
 		d_n = len(g.nodes())
-		d = self.rng.binomial(d_n, 1 / self.k)
+		d = self.rng.binomial(d_n, 1.0 / self.k)
 		changed2, g = self._depart(g, d)
 
 		return changed1 or changed2, g
@@ -125,10 +125,10 @@ class HomogeneousModel(_MixinModel):
 	def __init__(self, rng,  m, k, d, p_a):
 		# parameters
 		self.rng = rng
-		self.m = m
-		self.k = k
-		self.d = d
-		self.p_a = p_a
+		self.m = float(m)
+		self.k = float(k)
+		self.d = float(d)
+		self.p_a = float(p_a)
 
 		# calculated
 		self.log = [m, k, d, p_a]
@@ -179,12 +179,12 @@ class HeterogeneousModel(_MixinModel):
 	def __init__(self, rng,  m, k, d_l, d_h, p_s, p_a):
 		# parameters
 		self.rng = rng
-		self.m = m
-		self.k = k
-		self.d_l = d_l
-		self.d_h = d_h
-		self.p_s = p_s
-		self.p_a = p_a
+		self.m = float(m)
+		self.k = float(k)
+		self.d_l = float(d_l)
+		self.d_h = float(d_h)
+		self.p_s = float(p_s)
+		self.p_a = float(p_a)
 
 		# calculated
 		self.log = [m, d_l, d_h, p_s, p_a]
@@ -252,8 +252,8 @@ class KidneyModel(_MixinModel):
 	def __init__(self, rng,  m, k, data):
 		# parameters
 		self.rng = rng
-		self.m = m
-		self.k = k
+		self.m = float(m)
+		self.k = float(k)
 
 		# calculated
 		self.log = [m, k]

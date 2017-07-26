@@ -13,7 +13,7 @@ def _alpha(g, alpha):
 	delta distribution at vertex v.
 	"""
 	n = g.order()
-	v = [alpha/n] * n
+	v = [alpha / float(n)] * n
 	return sp.csc_matrix(v).T
 
 def _walks(g, w, p0, tau, alpha):
@@ -26,7 +26,7 @@ def _walks(g, w, p0, tau, alpha):
 	ps = [p0]
 	n = g.order()
 	for i in range(1, tau+1):
-		ps += [_alpha(g, alpha) + (1-alpha)*w*ps[i-1]]
+		ps += [_alpha(g, alpha) + (1.0-alpha)*w*ps[i-1]]
 	return ps
 
 def _degrees_inv(g):
@@ -35,7 +35,7 @@ def _degrees_inv(g):
 	where 0 entries are ignored.
 	"""
 	n, degs = g.order(), g.degree().values()
-	degs = list(map(lambda x : 0 if x == 0 else 1/x, degs))
+	degs = list(map(lambda x : 0 if x == 0 else 1.0/float(x), degs))
 	return sp.diags(degs, format = "csc")
 
 def _trans(g, deg):
