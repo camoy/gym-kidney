@@ -2,6 +2,7 @@ import networkx as nx
 import numpy as np
 from . import convert as kc
 import math
+import csv
 
 class _MixinModel:
 	def _inv_map(self, d):
@@ -249,7 +250,7 @@ class HeterogeneousModel(_MixinModel):
 
 
 class KidneyModel(_MixinModel):
-	def __init__(self, rng,  m, k, data):
+	def __init__(self, rng, m, k, data, details):
 		# parameters
 		self.rng = rng
 		self.m = float(m)
@@ -258,11 +259,19 @@ class KidneyModel(_MixinModel):
 		# calculated
 		self.log = [m, k]
 
-		# setup
-		self.label_map = {}
+		# adjacency matrix
 		adj = np.loadtxt(data, delimiter = ",")
 		self.glob = nx.DiGraph()
 		self.glob = nx.from_numpy_matrix(adj, create_using = self.glob)
+
+		# details
+		with open(details, mode="r") as handle:
+			read = csv.reader(handle)
+			for row in read:
+				u = self.glob.node[int(row[0])]
+				u["ndd"] = row[1] == "1"
+				u["b1"] = row[2]
+				u["b2"] = row[3]
 
 	def _arrive(self, g, n):
 		"""
@@ -271,19 +280,27 @@ class KidneyModel(_MixinModel):
 		"""
 		if n == 0: return False, g
 
-		glob, lm = self.glob, self.label_map
+		glob = self.glob
 		nodes = glob.nodes()
-		ns = self.rng.choice(nodes, n, replace = True).tolist()
 
 		# add vertices
 		n0 = g.order()
 		new = list(range(n0, n0+n))
 		for i, u in enumerate(new):
-			g.add_node(u, ndd = False)
-			lm[u] = ns[i]
+			ulab = self.rng.randint(0, self.glob.order())
+			v = self.glob.node[ulab]
+			g.add_node(
+				u,
+				ndd = v["ndd"],
+				b1 = v["b1"],
+				b2 = v["b2"],
+				gid = ulab)
+
+		# labelings
+		lm = nx.get_node_attributes(g, "gid")
+		lmi = self._inv_map_2(lm)
 
 		# add out edges
-		lmi = self._inv_map_2(lm)
 		for u in new:
 			gid = lm[u]
 			for vs in list(map(lmi.get, glob.successors(gid))):
@@ -295,7 +312,7 @@ class KidneyModel(_MixinModel):
 		# add in edges
 		for u in new:
 			gid = lm[u]
-			for v in list(map(lmi.get, glob.predecessors(gid))):
+			for vs in list(map(lmi.get, glob.predecessors(gid))):
 				if vs == None: continue
 				for v in vs:
 					if v in g.nodes():
