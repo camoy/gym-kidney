@@ -85,7 +85,7 @@ class KidneyEnv(gym.Env):
 			self.lembed = kc.embed(graph, init_distrs, tau, alpha)
 
 		# return cached embedding
-		return self.lembed
+		return np.array(self.lembed)
 
 	def _render(self, mode = "human", close = False):
 		if close:
