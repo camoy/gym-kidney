@@ -15,7 +15,6 @@ class LogWrapper(Wrapper):
 		"""
 		Appends average reward per episode to log file.
 		"""
-		avg_reward = self._net_reward / self._eps
 		env = self.env.unwrapped
 		params = [
 			self._iter,
@@ -23,9 +22,10 @@ class LogWrapper(Wrapper):
 			env.tau,
 			env.cycle_cap,
 			env.chain_cap,
-			avg_reward
+			self._net_reward,
+			self._eps
 		]
-		params = params + env.model.log
+		params = params + env.model.log + list(env.model.logd.values())
 		params = list(map(str, params))
 		with open(self._path, "a") as f:
 			f.write("%s\n" % (",".join(params)))

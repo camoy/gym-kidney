@@ -5,6 +5,12 @@ import math
 import csv
 
 class _MixinModel:
+	def _log(self, type, v):
+		if not self.logd: return
+
+		key = "%s_%s_%s" % (type, v["b1"], v["b2"])
+		self.logd[key] += 1
+
 	def _inv_map(self, d):
 		"""
 		Given dictionary d. Returns inverse dictionary.
@@ -43,6 +49,10 @@ class _MixinModel:
 			remove += [ndd_map[c.ndd_index]]
 			remove += list(map(lambda u: n_map[u], vtx))
 
+		# log matched
+		for v in remove:
+			self._log("match", g.node[v])
+
 		# remove
 		g.remove_nodes_from(remove)
 		g = nx.convert_node_labels_to_integers(g)
@@ -56,6 +66,11 @@ class _MixinModel:
 		"""
 		if n == 0: return False, g
 		leave = self.rng.choice(g.nodes(), n, replace = False).tolist()
+
+		# log departed
+		for v in leave:
+			self._log("depart", g.node[v])
+
 		g.remove_nodes_from(leave)
 		g = nx.convert_node_labels_to_integers(g)
 		return True, g
@@ -257,7 +272,15 @@ class KidneyModel(_MixinModel):
 		self.k = float(k)
 
 		# calculated
+		self.logd = {}
 		self.log = [m, k]
+
+		# log details
+		ty = ["arrive", "depart", "match"]
+		dbl = pbl  = ["-", "A", "B", "AB", "O"]
+		co = [(a, b, c) for a in ty for b in dbl for c in pbl]
+		for k in co:
+			self.logd["%s_%s_%s" % k] = 0
 
 		# adjacency matrix
 		adj = np.loadtxt(data, delimiter = ",")
@@ -265,7 +288,7 @@ class KidneyModel(_MixinModel):
 		self.glob = nx.from_numpy_matrix(adj, create_using = self.glob)
 
 		# details
-		with open(details, mode="r") as handle:
+		with open(details, mode = "r") as handle:
 			read = csv.reader(handle)
 			for row in read:
 				u = self.glob.node[int(row[0])]
@@ -295,6 +318,7 @@ class KidneyModel(_MixinModel):
 				b1 = v["b1"],
 				b2 = v["b2"],
 				gid = ulab)
+			self._log("arrive", g.node[u])
 
 		# labelings
 		lm = nx.get_node_attributes(g, "gid")
