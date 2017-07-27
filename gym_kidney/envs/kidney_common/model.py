@@ -132,10 +132,10 @@ class ContrivedModel(_MixinModel):
 				g = nx.DiGraph([(0, 1)])
 				nx.set_node_attributes(g, "ndd", False)
 
-			return g
+			return True, g
 		# reset on odd ticks
 		else:
-			return self.reset()
+			return True, self.reset()
 
 class HomogeneousModel(_MixinModel):
 	def __init__(self, rng,  m, k, d, p_a):
