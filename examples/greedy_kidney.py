@@ -1,20 +1,24 @@
 import gym
 import gym_kidney
 
-EPISODES = 250
+EPISODES = 1000
+NN = "greedy"
+EXP = 0
+OUT = "/home/user/"
 FREQ = 10
-OUT = "/home/user/greedy_kidney"
+PARAM = {}
 
 def main():
 	env = gym.make("kidney-v0")
-	env = gym_kidney.ConfigWrapper(env, "homogeneous", {
-	        "m": 1460,
+	env = gym_kidney.ConfigWrapper(env, "kidney", {
+		"tau": 5,
+	        "m": 580,
 	        "k": 24,
-	        "d": 163,
 		"t": 3,
-	        "p_a": 0.01
+		"data": "/home/user/data_adj.csv",
+		"details": "/home/user/data_details.csv"
 	})
-	env = gym_kidney.LogWrapper(env, OUT, FREQ) 
+	env = gym_kidney.LogWrapper(env, NN, EXP, OUT, FREQ, PARAM)
 
 	for i in range(EPISODES):
 		obs, done = env.reset(), False

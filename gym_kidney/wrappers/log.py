@@ -2,16 +2,46 @@ import gym
 from gym import Wrapper
 
 class LogWrapper(Wrapper):
-	def __init__(self, env, path, freq):
-		env = env.unwrapped
+	def __init__(self, env, nn, exp, path, freq, param_dict):
+		super(LogWrapper, self).__init__(env)
 
-		self._path = path
+		env = env.unwrapped
+		self._exp = exp
 		self._freq = freq
 		self._net_reward = 0
 		self._eps = 0
 		self._iter = 0
+		self._data_path = "%s/%s_%s_data.csv" % (path, nn, exp)
+		self._param_path = "%s/%s_%s_param.csv" % (path, nn, exp)
 
-		super(LogWrapper, self).__init__(env)
+		# data header
+		keys = [
+			"iteration",
+			"net_reward"
+		] + list(env.model.logd.keys())
+		with open(self._data_path, "w") as f:
+			f.write("%s\n" % (",".join(keys)))
+
+		# param
+		keys = [
+			"seed",
+			"tau",
+			"cycle_cap",
+			"chain_cap"
+			"episodes"
+		] + list(param_dict.keys())
+
+		values = list(map(str, [
+			env.seed,
+			env.tau,
+			env.cycle_cap,
+			env.chain_cap,
+			self._eps
+		] + list(param_dict.values())))
+
+		with open(self._param_path, "w") as f:
+			f.write("%s\n" % (",".join(keys)))
+			f.write("%s\n" % (",".join(values)))
 
 	def _log_csv(self):
 		"""
@@ -20,16 +50,12 @@ class LogWrapper(Wrapper):
 		env = self.env.unwrapped
 		params = [
 			self._iter,
-			env.seed,
-			env.tau,
-			env.cycle_cap,
-			env.chain_cap,
 			self._net_reward,
 			self._eps
 		]
 		params = params + env.model.log + list(env.model.logd.values())
 		params = list(map(str, params))
-		with open(self._path, "a") as f:
+		with open(self._data_path, "a") as f:
 			f.write("%s\n" % (",".join(params)))
 
 	def _step(self, action):
