@@ -27,8 +27,8 @@ class LogWrapper(Wrapper):
 			"seed",
 			"tau",
 			"cycle_cap",
-			"chain_cap"
-			"episodes"
+			"chain_cap",
+			"frequency"
 		] + list(param_dict.keys())
 
 		values = list(map(str, [
@@ -36,7 +36,7 @@ class LogWrapper(Wrapper):
 			env.tau,
 			env.cycle_cap,
 			env.chain_cap,
-			self._eps
+			self._freq
 		] + list(param_dict.values())))
 
 		with open(self._param_path, "w") as f:
