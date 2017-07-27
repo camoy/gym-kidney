@@ -21,6 +21,13 @@ class KidneyEnv(gym.Env):
 		self.t = 5
 		self.init_distrs = [kc.p0_max, kc.p0_mean]
 
+		# initialize
+		self._seed()
+		self.model = kc.ContrivedModel(self.rng)
+		self._setup()
+		self._reset()
+
+	def _setup(self):
 		# spaces
 		obs_size = len(self.init_distrs)*int((self.tau**2 + self.tau)/2)
 		self.action_space = spaces.Discrete(2)
@@ -29,10 +36,8 @@ class KidneyEnv(gym.Env):
 			np.inf,
 			(obs_size,))
 
-		# initialize
-		self._seed()
-		self.model = kc.ContrivedModel(self.rng)
-		self._reset()
+		# length
+		self.eps_len = self.model.k * self.t
 
 	def _seed(self, seed = None):
 		self.seed = seed
@@ -72,7 +77,7 @@ class KidneyEnv(gym.Env):
 		self.tick = 0
 		self.changed = True
 		self.graph = self.model.reset()
-		self.eps_len = self.model.k * self.t
+
 		return self._get_obs()
 
 	def _get_obs(self):

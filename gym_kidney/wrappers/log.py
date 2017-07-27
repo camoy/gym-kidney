@@ -3,13 +3,15 @@ from gym import Wrapper
 
 class LogWrapper(Wrapper):
 	def __init__(self, env, path, freq):
-		super(LogWrapper, self).__init__(env)
+		env = env.unwrapped
 
 		self._path = path
 		self._freq = freq
 		self._net_reward = 0
 		self._eps = 0
 		self._iter = 0
+
+		super(LogWrapper, self).__init__(env)
 
 	def _log_csv(self):
 		"""

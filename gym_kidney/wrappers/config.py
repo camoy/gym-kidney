@@ -18,18 +18,22 @@ models = {
 
 class ConfigWrapper(Wrapper):
 	def __init__(self, env, model, p):
-		super(ConfigWrapper, self).__init__(env)
+		env = env.unwrapped
 
 		# environment parameters
-		if "tau" in p: self.env.tau = p.pop("tau")
-		if "alpha" in p: self.env.alpha = p.pop("alpha")
-		if "t" in p: self.env.t = p.pop("t")
-		if "cycle_cap" in p: self.env.cycle_cap = p.pop("cycle_cap")
-		if "chain_cap" in p: self.env.chain_cap = p.pop("chain_cap")
+		if "tau" in p: env.tau = p.pop("tau")
+		if "alpha" in p: env.alpha = p.pop("alpha")
+		if "t" in p: env.t = p.pop("t")
+		if "cycle_cap" in p: env.cycle_cap = p.pop("cycle_cap")
+		if "chain_cap" in p: env.chain_cap = p.pop("chain_cap")
 		if "init_distrs" in p:
 			getter, distrs = init_distrs.get, p.pop("init_distrs")
-			self.env.init_distrs = list(map(getter, distrs))
+			env.init_distrs = list(map(getter, distrs))
 
 		# model parameters
-		p["rng"] = self.env.rng
-		self.env.model = models[model](**p)
+		p["rng"] = env.rng
+		env.model = models[model](**p)
+
+		# initialize
+		env._setup()
+		super(ConfigWrapper, self).__init__(env)
