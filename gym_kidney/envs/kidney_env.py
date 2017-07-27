@@ -39,6 +39,9 @@ class KidneyEnv(gym.Env):
 		# length
 		self.eps_len = self.model.k * self.t
 
+		# seed
+		self._seed(seed = self.seed)
+
 	def _seed(self, seed = None):
 		self.seed = seed
 		self.rng, seed = seeding.np_random(seed)

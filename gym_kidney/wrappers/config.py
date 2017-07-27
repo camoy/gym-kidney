@@ -21,6 +21,7 @@ class ConfigWrapper(Wrapper):
 		env = env.unwrapped
 
 		# environment parameters
+		if "seed" in p: env.seed = p.pop("seed")
 		if "tau" in p: env.tau = p.pop("tau")
 		if "alpha" in p: env.alpha = p.pop("alpha")
 		if "t" in p: env.t = p.pop("t")
