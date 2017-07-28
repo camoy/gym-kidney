@@ -57,7 +57,7 @@ class LogWrapper(Wrapper):
 			self._net_reward,
 			self._eps
 		]
-		params = params + env.model.log + list(env.model.logd.values())
+		params = params + list(env.model.logd.values())
 		params = list(map(str, params))
 		with open(self._data_path, "a") as f:
 			f.write("%s\n" % (",".join(params)))
