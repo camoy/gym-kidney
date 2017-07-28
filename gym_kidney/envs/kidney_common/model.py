@@ -85,8 +85,11 @@ class _MixinModel:
 		g = self._process_matches(g, m)
 
 		# arrival
-		a_n = self.m / (self.k-1.0)
+		a_n = math.ceil(self.m / (self.k-1.0))
 		a_p = (self.k-1.0) / self.k
+
+		if a_n == 1:
+			a_p = self.m / self.k
 
 		a = self.rng.binomial(a_n, a_p)
 		changed1, g = self._arrive(g, a)
