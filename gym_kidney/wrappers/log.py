@@ -2,7 +2,7 @@ import gym
 from gym import Wrapper
 
 class LogWrapper(Wrapper):
-	def __init__(self, env, nn, exp, path, freq, param_dict):
+	def __init__(self, env, nn, exp, path, freq, param_d):
 		super(LogWrapper, self).__init__(env)
 
 		env = env.unwrapped
@@ -26,18 +26,22 @@ class LogWrapper(Wrapper):
 		keys = [
 			"seed",
 			"tau",
+			"alpha",
+			"t",
 			"cycle_cap",
 			"chain_cap",
 			"frequency"
-		] + list(param_dict.keys())
+		] + list(param_d.keys()) + list(env.model.log.keys())
 
 		values = list(map(str, [
 			env.seed,
 			env.tau,
+			env.alpha,
+			env.t,
 			env.cycle_cap,
 			env.chain_cap,
 			self._freq
-		] + list(param_dict.values())))
+		] + list(param_d.values()) + list(env.model.log.values())))
 
 		with open(self._param_path, "w") as f:
 			f.write("%s\n" % (",".join(keys)))

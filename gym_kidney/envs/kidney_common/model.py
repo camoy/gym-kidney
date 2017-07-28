@@ -273,7 +273,7 @@ class KidneyModel(_MixinModel):
 
 		# calculated
 		self.logd = {}
-		self.log = [m, k]
+		self.log = {"m": m, "k": k}
 
 		# log details
 		ty = ["arrive", "depart", "match"]
