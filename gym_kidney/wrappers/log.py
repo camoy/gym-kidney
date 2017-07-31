@@ -54,8 +54,7 @@ class LogWrapper(Wrapper):
 		env = self.env.unwrapped
 		params = [
 			self._iter,
-			self._net_reward,
-			self._eps
+			self._net_reward
 		]
 		params = params + list(env.model.logd.values())
 		params = list(map(str, params))
