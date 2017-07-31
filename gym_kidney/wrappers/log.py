@@ -5,7 +5,7 @@ class LogWrapper(Wrapper):
 	def __init__(self, env, nn, exp, path, freq, param_d):
 		super(LogWrapper, self).__init__(env)
 
-		env = env.unwrapped
+		self.env = env = env.unwrapped
 		self._exp = exp
 		self._freq = freq
 		self._net_reward = 0
@@ -74,10 +74,11 @@ class LogWrapper(Wrapper):
 		"""
 		Wraps reset.
 		"""
-		self._eps += 1
 		if self._eps >= self._freq:
 			self._log_csv()
+			self.env.model.reset_log()
 			self._eps = 0
 			self._net_reward = 0
 			self._iter += 1
+		self._eps += 1
 		return self.env.reset()

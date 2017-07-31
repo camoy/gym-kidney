@@ -5,12 +5,6 @@ import math
 import csv
 
 class _MixinModel:
-	def _log(self, type, v):
-		if not self.logd: return
-
-		key = "%s_%s_%s" % (type, v["b1"], v["b2"])
-		self.logd[key] += 1
-
 	def _inv_map(self, d):
 		"""
 		Given dictionary d. Returns inverse dictionary.
@@ -74,6 +68,19 @@ class _MixinModel:
 		g.remove_nodes_from(leave)
 		g = nx.convert_node_labels_to_integers(g)
 		return True, g
+
+	def _log(self, type, v):
+		if not self.logd: return
+
+		key = "%s_%s_%s" % (type, v["b1"], v["b2"])
+		self.logd[key] += 1
+
+	def reset_log(self):
+		ty = ["arrive", "depart", "match"]
+		dbl = pbl  = ["-", "A", "B", "AB", "O"]
+		co = [(a, b, c) for a in ty for b in dbl for c in pbl]
+		for k in co:
+			self.logd["%s_%s_%s" % k] = 0
 
 	def evolve(self, g, m, i):
 		"""
@@ -279,11 +286,7 @@ class KidneyModel(_MixinModel):
 		self.log = {"m": m, "k": k}
 
 		# log details
-		ty = ["arrive", "depart", "match"]
-		dbl = pbl  = ["-", "A", "B", "AB", "O"]
-		co = [(a, b, c) for a in ty for b in dbl for c in pbl]
-		for k in co:
-			self.logd["%s_%s_%s" % k] = 0
+		self.reset_log()
 
 		# adjacency matrix
 		adj = np.loadtxt(data, delimiter = ",")
