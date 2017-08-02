@@ -46,6 +46,12 @@ def _trans(g, deg):
 	adj = nx.to_scipy_sparse_matrix(g, format = "csc")
 	return (deg * adj).T
 
+def _dist(pr, ps, pt):
+	num = pt.T.dot(np.divide(ps, pr)).item(0)
+	ps_l2 = np.linalg.norm(np.divide(ps, np.sqrt(pr)))
+	pt_l2 = np.linalg.norm(np.divide(pt, np.sqrt(pr)))
+	return num / (ps_l2 * pt_l2)
+
 def _feature(g, p0, tau, alpha):
 	"""
 	Given graph g, initial distribution p0, jump probability
@@ -55,9 +61,10 @@ def _feature(g, p0, tau, alpha):
 	n, m = g.order(), []
 	deg_inv = _degrees_inv(g)
 	ps = _walks(g, _trans(g, deg_inv), p0, tau, alpha)
+	pr = sp.csc_matrix(list(nx.pagerank(g).values())).T
 	for s in range(tau):
 		for t in range(s+1, tau+1):
-			m += [sp.linalg.norm(ps[s] - ps[t])]
+			m += [_dist(pr, ps[s], ps[t])]
 	return m
 
 #
