@@ -61,7 +61,7 @@ def _feature(g, p0, tau, alpha):
 	n, m = g.order(), []
 	deg_inv = _degrees_inv(g)
 	ps = _walks(g, _trans(g, deg_inv), p0, tau, alpha)
-	pr = sp.csc_matrix(list(nx.pagerank(g).values())).T
+	pr = sp.csc_matrix(list(nx.pagerank(g, alpha = alpha).values())).T
 	for s in range(tau):
 		for t in range(s+1, tau+1):
 			m += [_dist(pr, ps[s], ps[t])]
