@@ -17,7 +17,8 @@ def main():
 	        "k": 24,
 		"t": 3,
 		"data": "/home/user/data_adj.csv",
-		"details": "/home/user/data_details.csv"
+		"details": "/home/user/data_details.csv",
+		"d_path": "/home/user/dictionary.gz"
 	})
 	env = gym_kidney.LogWrapper(env, NN, EXP, OUT, FREQ, PARAM)
 	act = deepq.load("kidney_model.pkl")

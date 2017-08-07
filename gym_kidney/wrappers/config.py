@@ -25,11 +25,11 @@ class ConfigWrapper(Wrapper):
 		if "tau" in p: env.tau = p.pop("tau")
 		if "alpha" in p: env.alpha = p.pop("alpha")
 		if "t" in p: env.t = p.pop("t")
+		if "training" in p: env.training = p.pop("training")
 		if "cycle_cap" in p: env.cycle_cap = p.pop("cycle_cap")
 		if "chain_cap" in p: env.chain_cap = p.pop("chain_cap")
-		if "init_distrs" in p:
-			getter, distrs = init_distrs.get, p.pop("init_distrs")
-			env.init_distrs = list(map(getter, distrs))
+		if "atoms" in p: env.atoms = p.pop("atoms")
+		if "d_path" in p: env.d_path = p.pop("d_path")
 
 		# model parameters
 		p["rng"] = env.rng

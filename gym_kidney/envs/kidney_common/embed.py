@@ -2,6 +2,7 @@ import math
 import networkx as nx
 import numpy as np
 import scipy.sparse as sp
+import spams
 
 #
 # MAIN FUNCTIONS
@@ -126,22 +127,77 @@ def p0_mean(g):
 	return _p0_dirac(g, _best_vertex(g, np.mean))
 
 #
-# WALK2VEC
-# 
+# POOLING FUNCTIONS
+#
 
-def embed(g, p0s, tau, alpha):
+def pool_avg(alpha):
 	"""
-	Given graph g, list of initial distribution generating
-	functions p0s, jump probability alpha,and walk cap tau.
-	Returns embedding of g.
+	Given list of vectors alpha. Returns entry-wise
+	average.
 	"""
+	return np.average(alpha, axis=1)
 
-	# empty graph
+def pool_max(alpha):
+	"""
+	Given list of vectors alpha. Returns entry-wise
+	max.
+	"""
+	return np.amax(alpha, axis=1)
+
+#
+# WALK2VEC SPARSE CODING
+#
+
+def _all_features(g, tau, alpha):
+	"""
+	Given graph g, initial distribution generating function
+	p0, and walk cap tau. Returns list of feature vectors
+	over all vertices.
+	"""
+	n, xs = g.order(), []
+	for i in range(n):
+		xs += [_feature(g, _p0_dirac(g, i), tau, alpha)]
+	return xs
+
+def train(g, tau, alpha, d = None, params = {}):
+	"""
+	Given graph g and walk cap tau. Given optional dictionary
+	d and training parameters params. Returns dictionary after
+	training.
+	"""
 	if g.order() == 0:
-		return [0]*(int(len(p0s)*((tau**2+tau)/2)))
+		return d
 
-	# non-empty graphs
-	phi = []
-	for i, p0_i in enumerate(p0s):
-		phi += _feature(g, p0_i(g), tau, alpha)
-	return phi
+	xs_mat = np.column_stack(_all_features(g, tau, alpha))
+	xs = np.asfortranarray(xs_mat, dtype=float)
+	default_params = {
+		"K": 100,
+		"lambda1": 0.15,
+		"iter": 100,
+		"batchsize": 5,
+		"verbose": False
+	}
+	params = {**default_params, **params}
+	return spams.trainDL(xs, **params)
+
+def embed(g, tau, alpha, d, pool, params = {}):
+	"""
+	Given graph g, initial distribution generating function
+	p0, and walk cap tau, dictionary d, and pooling function
+	pool. Given optional coding parameters params. Returns
+	embedding of g.
+	"""
+	atoms = d.shape[1]
+	if g.order() == 0:
+		return [0]*atoms
+
+	xs_mat = np.column_stack(_all_features(g, tau, alpha))
+	xs = np.asfortranarray(xs_mat, dtype=float)
+
+	default_params = {
+		"lambda1": 0.15
+	}
+	params = {**default_params, **params}
+
+	a = spams.lasso(xs, D = d, **params).todense()
+	return np.asarray(pool(a)).reshape(-1)

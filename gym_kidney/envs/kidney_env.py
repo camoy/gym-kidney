@@ -7,6 +7,7 @@ from gym_kidney.envs import kidney_common as kc
 
 import numpy as np
 import networkx as nx
+import os
 #import matplotlib.pyplot as plt
 
 class KidneyEnv(gym.Env):
@@ -14,12 +15,16 @@ class KidneyEnv(gym.Env):
 
 	def __init__(self):
 		# default parameters
-		self.tau = 5
+		self.atoms = 100
+		self.tau = 7
 		self.alpha = 0.05
 		self.cycle_cap = 3
 		self.chain_cap = 3
 		self.t = 5
-		self.init_distrs = [kc.p0_max, kc.p0_mean]
+		self.d_path = None
+		self.training = False
+		self.dict = None
+		self.lembed = []
 
 		# initialize
 		self._seed()
@@ -29,18 +34,28 @@ class KidneyEnv(gym.Env):
 
 	def _setup(self):
 		# spaces
-		obs_size = len(self.init_distrs)*int((self.tau**2 + self.tau)/2)
+		obs_size = self.atoms
 		self.action_space = spaces.Discrete(2)
 		self.observation_space = spaces.Box(
 			-np.inf,
 			np.inf,
 			(obs_size,))
 
+		# embedding
+		self.lembed = [0] * obs_size
+
 		# length
 		self.eps_len = self.model.k * self.t
 
 		# seed
 		self._seed(seed = self.seed)
+
+		# dictionary
+		if self.d_path and os.path.exists(self.d_path):
+			self.dict = np.loadtxt(self.d_path)
+			self.dict = np.asfortranarray(self.dict, dtype=float)
+		else:
+			self.dict = None
 
 	def _seed(self, seed = None):
 		self.seed = seed
@@ -81,16 +96,33 @@ class KidneyEnv(gym.Env):
 		self.changed = True
 		self.graph = self.model.reset()
 
+		# dictionary
+		if not (self.dict is None) and self.training:
+			np.savetxt(self.d_path, self.dict)
+
 		return self._get_obs()
 
 	def _get_obs(self):
 		if self.changed:
-			graph, init_distrs = self.graph, self.init_distrs
+			graph = self.graph
 			tau, alpha = self.tau, self.alpha
 
 			# new embedding
 			self.changed = False
-			self.lembed = kc.embed(graph, init_distrs, tau, alpha)
+			if self.training:
+				self.dict = kc.train(
+					graph,
+					tau,
+					alpha,
+					d = self.dict,
+					params = { "K": self.atoms })
+			elif not (self.dict is None):
+				self.lembed = kc.embed(
+					graph,
+					tau,
+					alpha,
+					self.dict,
+					kc.pool_avg)
 
 		# return cached embedding
 		return np.array(self.lembed)
