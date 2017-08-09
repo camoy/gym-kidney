@@ -145,6 +145,26 @@ def pool_max(alpha):
 	return np.amax(alpha, axis=1)
 
 #
+# WALK2VEC
+#
+def phi(g, p0s, tau, alpha):
+	"""
+	Given graph g, list of initial distribution generating
+	functions p0s, jump probability alpha,and walk cap tau.
+	Returns embedding of g.
+	"""
+
+	# empty graph
+	if g.order() == 0:
+		return [0]*(int(len(p0s)*((tau**2+tau)/2)))
+
+	# non-empty graphs
+	phi = []
+	for i, p0_i in enumerate(p0s):
+		phi += _feature(g, p0_i(g), tau, alpha)
+	return phi
+
+#
 # WALK2VEC SPARSE CODING
 #
 
@@ -180,7 +200,7 @@ def train(g, tau, alpha, d = None, params = {}):
 	params = {**default_params, **params}
 	return spams.trainDL(xs, **params)
 
-def embed(g, tau, alpha, d, pool, params = {}):
+def phi_sc(g, tau, alpha, d, pool, params = {}):
 	"""
 	Given graph g, initial distribution generating function
 	p0, and walk cap tau, dictionary d, and pooling function

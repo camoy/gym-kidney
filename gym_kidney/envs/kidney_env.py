@@ -8,7 +8,7 @@ from gym_kidney.envs import kidney_common as kc
 import numpy as np
 import networkx as nx
 import os
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 class KidneyEnv(gym.Env):
 	metadata = { "render.modes" : ["human"] }
@@ -25,6 +25,7 @@ class KidneyEnv(gym.Env):
 		self.training = False
 		self.dict = None
 		self.lembed = []
+		self.init_distrs = [kc.p0_max, kc.p0_mean]
 
 		# initialize
 		self._seed()
@@ -35,7 +36,10 @@ class KidneyEnv(gym.Env):
 	def _setup(self):
 		# spaces
 		obs_size = self.atoms
-		self.action_space = spaces.Discrete(2)
+		self.action_space = spaces.Box(
+			-2,
+			2,
+			(1,))
 		self.observation_space = spaces.Box(
 			-np.inf,
 			np.inf,
@@ -66,17 +70,18 @@ class KidneyEnv(gym.Env):
 		reward = 0
 		match = ([], [])
 
-		# match
-		if action == 1:
-			d, ndds = kc.nx_to_ks(self.graph)
-			cfg = ks.kidney_ip.OptConfig(
-				d,
-				ndds,
-				self.cycle_cap,
-				self.chain_cap)
-			soln = ks.solve_kep(cfg, "picef")
-			match = (soln.cycles, soln.chains)
-			reward = soln.total_score
+		self.graph = kc.reweight(self.graph, action)
+		d, ndds = kc.nx_to_ks(self.graph)
+		cfg = ks.kidney_ip.OptConfig(
+			d,
+			ndds,
+			self.cycle_cap,
+			self.chain_cap)
+		soln = ks.solve_kep(cfg, "picef")
+		match = (soln.cycles, soln.chains)
+		rew_cycles = sum(map(lambda x: len(x.vtx_indices), soln.cycles))
+		rew_chains = sum(map(lambda x: len(x.vtx_indices), soln.chains))
+		reward = rew_cycles + rew_chains
 
 		# evolve
 		self.changed, self.graph = self.model.evolve(
@@ -103,26 +108,27 @@ class KidneyEnv(gym.Env):
 		return self._get_obs()
 
 	def _get_obs(self):
-		if self.changed:
-			graph = self.graph
-			tau, alpha = self.tau, self.alpha
+		#if self.changed:
+		graph = self.graph
+		tau, alpha = self.tau, self.alpha
 
-			# new embedding
-			self.changed = False
-			if self.training:
-				self.dict = kc.train(
-					graph,
-					tau,
-					alpha,
-					d = self.dict,
-					params = { "K": self.atoms })
-			elif not (self.dict is None):
-				self.lembed = kc.embed(
-					graph,
-					tau,
-					alpha,
-					self.dict,
-					kc.pool_avg)
+		# new embedding
+		#self.changed = False
+		if self.training:
+			self.dict = kc.train(
+				graph,
+				tau,
+				alpha,
+				d = self.dict,
+				params = { "K": self.atoms })
+		#elif not (self.dict is None):
+			self.lembed = kc.phi(
+				graph,
+				self.init_distrs,
+				tau,
+				alpha)#,
+				#self.dict,
+				#kc.pool_avg)
 
 		# return cached embedding
 		return np.array(self.lembed)
@@ -130,8 +136,8 @@ class KidneyEnv(gym.Env):
 	def _render(self, mode = "human", close = False):
 		if close:
 			return
-		#if self.tick == 0:
-		#	plt.ion()
+		if self.tick == 0:
+			plt.ion()
 
 		# define colors
 		g = self.graph
@@ -139,10 +145,10 @@ class KidneyEnv(gym.Env):
 		values = ["red" if attrs[v] else "blue" for v in g.nodes()]
 
 		# draw graph
-		#plt.clf()
-		#nx.draw(g,
-		#	pos = nx.circular_layout(g),
-		#	node_color = values)
-		#plt.pause(0.01)
+		plt.clf()
+		nx.draw(g,
+			pos = nx.circular_layout(g),
+			node_color = values)
+		plt.pause(0.01)
 
 		return []

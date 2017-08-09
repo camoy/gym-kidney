@@ -70,7 +70,7 @@ class _MixinModel:
 		return True, g
 
 	def _log(self, type, v):
-		if not self.logd: return
+		if not hasattr(self, "logd"): return
 
 		key = "%s_%s_%s" % (type, v["b1"], v["b2"])
 		self.logd[key] += 1
@@ -112,8 +112,10 @@ class ContrivedModel(_MixinModel):
 		"""
 		Returns contrived graph at initial state.
 		"""
-		g = nx.DiGraph([(0, 1)])
+		g = nx.DiGraph()
+		g.add_nodes_from([0, 1])
 		nx.set_node_attributes(g, "ndd", { 0 : True, 1 : False })
+		g.add_edge(0, 1, weight = 1.0)
 		return g
 
 	def evolve(self, g, m, i):
@@ -125,16 +127,12 @@ class ContrivedModel(_MixinModel):
 		# evolve on even ticks
 		if i % 2 == 0:
 			g = self._process_matches(g, m)
+			g.add_nodes_from([2, 3], ndd = False)
+			g.add_edge(2, 3, weight = 1.0)
 
 			# unmatched chain
 			if g.has_node(1):
-				g.add_nodes_from([2, 3], ndd = False)
-				g.add_edge(2, 3)
-				g.add_edge(1, 2)
-			# empty graph
-			else:
-				g = nx.DiGraph([(0, 1)])
-				nx.set_node_attributes(g, "ndd", False)
+				g.add_edge(1, 2, weight = 1.0)
 
 			return True, g
 		# reset on odd ticks
@@ -331,7 +329,7 @@ class KidneyModel(_MixinModel):
 				if vs == None: continue
 				for v in vs:
 					if v in g.nodes():
-						g.add_edge(u, v)
+						g.add_edge(u, v, weight = 1.0)
 
 		# add in edges
 		for u in new:
@@ -340,7 +338,7 @@ class KidneyModel(_MixinModel):
 				if vs == None: continue
 				for v in vs:
 					if v in g.nodes():
-						g.add_edge(v, u)
+						g.add_edge(v, u, weight = 1.0)
 
 		return True, g
 
