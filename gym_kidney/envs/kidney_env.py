@@ -134,10 +134,11 @@ class KidneyEnv(gym.Env):
 		return np.array(self.lembed)
 
 	def _render(self, mode = "human", close = False):
-		import matplotlib.pyplot as plt
-
 		if close:
 			return
+
+		import matplotlib.pyplot as plt
+
 		if self.tick == 0:
 			plt.ion()
 
