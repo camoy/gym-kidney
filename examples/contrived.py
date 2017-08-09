@@ -15,7 +15,7 @@ def main():
 	for i in range(EPISODES):
 		obs, done = env.reset(), False
 		while not done:
-			_, rew, done, _ = env.step([2])
+			obs, rew, done, _ = env.step([2])
 
 if __name__ == "__main__":
 	main()
