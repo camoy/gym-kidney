@@ -8,7 +8,6 @@ from gym_kidney.envs import kidney_common as kc
 import numpy as np
 import networkx as nx
 import os
-import matplotlib.pyplot as plt
 
 class KidneyEnv(gym.Env):
 	metadata = { "render.modes" : ["human"] }
@@ -135,6 +134,8 @@ class KidneyEnv(gym.Env):
 		return np.array(self.lembed)
 
 	def _render(self, mode = "human", close = False):
+		import matplotlib.pyplot as plt
+
 		if close:
 			return
 		if self.tick == 0:
