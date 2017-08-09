@@ -8,7 +8,7 @@ from gym_kidney.envs import kidney_common as kc
 import numpy as np
 import networkx as nx
 import os
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 class KidneyEnv(gym.Env):
 	metadata = { "render.modes" : ["human"] }
@@ -38,8 +38,8 @@ class KidneyEnv(gym.Env):
 		#obs_size = self.atoms
 		obs_size = int(((self.tau**2+self.tau)/2)*len(self.init_distrs))
 		self.action_space = spaces.Box(
-			-2,
-			2,
+			-4,
+			4,
 			(1,))
 		self.observation_space = spaces.Box(
 			-np.inf,
@@ -137,8 +137,8 @@ class KidneyEnv(gym.Env):
 	def _render(self, mode = "human", close = False):
 		if close:
 			return
-		#if self.tick == 0:
-		#	plt.ion()
+		if self.tick == 0:
+			plt.ion()
 
 		# define colors
 		g = self.graph
@@ -146,10 +146,10 @@ class KidneyEnv(gym.Env):
 		values = ["red" if attrs[v] else "blue" for v in g.nodes()]
 
 		# draw graph
-		#plt.clf()
-		#nx.draw(g,
-		#	pos = nx.circular_layout(g),
-		#	node_color = values)
-		#plt.pause(0.01)
+		plt.clf()
+		nx.draw(g,
+			pos = nx.circular_layout(g),
+			node_color = values)
+		plt.pause(0.01)
 
 		return []
