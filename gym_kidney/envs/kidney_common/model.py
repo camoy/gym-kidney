@@ -127,11 +127,14 @@ class ContrivedModel(_MixinModel):
 		# evolve on even ticks
 		if i % 2 == 0:
 			g = self._process_matches(g, m)
-			g.add_nodes_from([2, 3], ndd = False)
-			g.add_edge(2, 3, weight = 1.0)
 
 			# unmatched chain
 			if g.has_node(1):
+				g.add_nodes_from([2, 3], ndd = False)
+				g.add_edge(2, 3, weight = 1.0)
+				g.add_edge(1, 2, weight = 1.0)
+			else:
+				g.add_nodes_from([1, 2], ndd = False)
 				g.add_edge(1, 2, weight = 1.0)
 
 			return True, g
