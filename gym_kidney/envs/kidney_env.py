@@ -36,7 +36,7 @@ class KidneyEnv(gym.Env):
 	def _setup(self):
 		# spaces
 		#obs_size = self.atoms
-		obs_size = int((self.tau**2+self.tau/2)*len(self.init_distrs))
+		obs_size = int(((self.tau**2+self.tau)/2)*len(self.init_distrs))
 		self.action_space = spaces.Box(
 			-2,
 			2,
