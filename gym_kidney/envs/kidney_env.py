@@ -122,11 +122,11 @@ class KidneyEnv(gym.Env):
 				d = self.dict,
 				params = { "K": self.atoms })
 		#elif not (self.dict is None):
-			self.lembed = kc.phi(
-				graph,
-				self.init_distrs,
-				tau,
-				alpha)#,
+		self.lembed = kc.phi(
+			graph,
+			self.init_distrs,
+			tau,
+			alpha)#,
 				#self.dict,
 				#kc.pool_avg)
 
