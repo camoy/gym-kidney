@@ -92,7 +92,7 @@ class KidneyEnv(gym.Env):
 		match = (soln.cycles, soln.chains)
 
 		# utility as cardinality
-		rew_cycles = sum(map(lambda x: len(x.vtx_indices), soln.cycles))
+		rew_cycles = sum(map(lambda x: len(x), soln.cycles))
 		rew_chains = sum(map(lambda x: len(x.vtx_indices), soln.chains))
 		reward = rew_cycles + rew_chains
 
