@@ -113,8 +113,8 @@ class ContrivedModel(_MixinModel):
 		Returns contrived graph at initial state.
 		"""
 		g = nx.DiGraph()
-		g.add_nodes_from([0, 1])
-		nx.set_node_attributes(g, "ndd", { 0 : True, 1 : False })
+		g.add_node(0, b1 = "A", b2 = "-", ndd = True)
+		g.add_node(1, b1 = "A", b2 = "A", ndd = False)
 		g.add_edge(0, 1, weight = 1.0)
 		return g
 
@@ -130,11 +130,11 @@ class ContrivedModel(_MixinModel):
 
 			# unmatched chain
 			if g.has_node(1):
-				g.add_nodes_from([2, 3], ndd = False)
+				g.add_nodes_from([2, 3], ndd = False, b1 = "A", b2 = "A")
 				g.add_edge(2, 3, weight = 1.0)
 				g.add_edge(1, 2, weight = 1.0)
 			else:
-				g.add_nodes_from([1, 2], ndd = False)
+				g.add_nodes_from([1, 2], ndd = False, b1 = "A", b2 = "A")
 				g.add_edge(1, 2, weight = 1.0)
 
 			return True, g

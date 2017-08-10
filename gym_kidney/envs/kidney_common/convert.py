@@ -1,6 +1,14 @@
 import networkx as nx
 from .. import kidney_solver as ks
 
+b_order = {
+	"A": 0,
+	"B": 1,
+	"AB": 2,
+	"O": 3,
+	"-": 4
+}
+
 def relabel(g):
 	"""
 	Given a NetworkX graph. Returns: number of donor-patient-pair
@@ -22,11 +30,16 @@ def relabel(g):
 
 	return n, n_ndds, n_map, ndd_map
 
+def output_weight(g, u, action):
+	attr = g.node[u]
+	return action[b_order[attr["b1"]]*5 + b_order[attr["b2"]]]
+
 def reweight(g, action):
 	attrs = nx.get_node_attributes(g, "ndd")
 	for u, v, d in g.edges(data = True):
-		w = action[0] if attrs[u] or attrs[v] else 0
-		d["weight"] = d["weight"] - 0.5*w
+		o1 = output_weight(g, u, action)
+		o2 = output_weight(g, v, action)
+		d["weight"] = d["weight"] - 0.5*(o1+o2)
 	return g
 
 def nx_to_ks(g):
