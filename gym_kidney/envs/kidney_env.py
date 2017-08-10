@@ -14,17 +14,20 @@ class KidneyEnv(gym.Env):
 
 	def __init__(self):
 		# default parameters
-		self.atoms = 100
-		self.tau = 7
-		self.alpha = 0.05
 		self.cycle_cap = 3
 		self.chain_cap = 3
 		self.t = 5
-		self.d_path = None
-		self.training = False
+		self.embed = {
+			#"atoms": 100,
+			"method": "walk2vec",
+			"tau": 7,
+			"alpha": 0.05,
+			"init_distrs": [kc.p0_max, kc.p0_mean]#,
+			#"d_path": "/home/camoy/tmp/dictionary.gz",
+			#"training": False
+		}
 		self.dict = None
 		self.lembed = []
-		self.init_distrs = [kc.p0_max, kc.p0_mean]
 
 		# initialize
 		self._seed()
@@ -33,9 +36,24 @@ class KidneyEnv(gym.Env):
 		self._reset()
 
 	def _setup(self):
+		m = self.embed["method"]
+
+		if m == "walk2vec":
+			tau = self.embed["tau"]
+			inits = self.embed["init_distrs"]
+			obs_size = int(((tau**2+tau)/2)*len(inits))
+		else:
+			obs_size = self.embed["atoms"]
+			path = self.embed["d_path"]
+
+			# dictionary
+			if path and os.path.exists(path):
+				self.dict = np.loadtxt(path)
+				self.dict = np.asfortranarray(self.dict, dtype = float)
+			else:
+				self.dict = None
+
 		# spaces
-		#obs_size = self.atoms
-		obs_size = int(((self.tau**2+self.tau)/2)*len(self.init_distrs))
 		self.action_space = spaces.Box(
 			-4,
 			4,
@@ -53,13 +71,6 @@ class KidneyEnv(gym.Env):
 
 		# seed
 		self._seed(seed = self.seed)
-
-		# dictionary
-		if self.d_path and os.path.exists(self.d_path):
-			self.dict = np.loadtxt(self.d_path)
-			self.dict = np.asfortranarray(self.dict, dtype=float)
-		else:
-			self.dict = None
 
 	def _seed(self, seed = None):
 		self.seed = seed
@@ -79,6 +90,8 @@ class KidneyEnv(gym.Env):
 			self.chain_cap)
 		soln = ks.solve_kep(cfg, "picef")
 		match = (soln.cycles, soln.chains)
+
+		# utility as cardinality
 		rew_cycles = sum(map(lambda x: len(x.vtx_indices), soln.cycles))
 		rew_chains = sum(map(lambda x: len(x.vtx_indices), soln.chains))
 		reward = rew_cycles + rew_chains
@@ -102,33 +115,42 @@ class KidneyEnv(gym.Env):
 		self.graph = self.model.reset()
 
 		# dictionary
-		if not (self.dict is None) and self.training:
+		if not (self.dict is None) and self.embed["training"]:
 			np.savetxt(self.d_path, self.dict)
 
 		return self._get_obs()
 
 	def _get_obs(self):
-		#if self.changed:
 		graph = self.graph
-		tau, alpha = self.tau, self.alpha
+		tau = self.embed["tau"]
+		alpha = self.embed["alpha"]
+		inits = self.embed["init_distrs"]
+		m = self.embed["method"]
 
 		# new embedding
-		#self.changed = False
-		if self.training:
+		if not (m == "walk2vec") and self.embed["training"]:
+			atoms = self.embed["atoms"]
 			self.dict = kc.train(
 				graph,
 				tau,
 				alpha,
 				d = self.dict,
-				params = { "K": self.atoms })
-		#elif not (self.dict is None):
-		self.lembed = kc.phi(
-			graph,
-			self.init_distrs,
-			tau,
-			alpha)#,
-				#self.dict,
-				#kc.pool_avg)
+				params = { "K": atoms })
+		elif self.changed:
+			self.changed = False
+			if m == "walk2vec":
+				self.lembed = kc.phi(
+					graph,
+					inits,
+					tau,
+					alpha)
+			else:
+				self.lembed = kc.phi_sc(
+					graph,
+					tau,
+					alpha,
+					self.dict,
+					kc.pool_avg)
 
 		# return cached embedding
 		return np.array(self.lembed)

@@ -12,13 +12,16 @@ PARAM = {}
 def main():
 	env = gym.make("kidney-v0")
 	env = gym_kidney.ConfigWrapper(env, "kidney", {
-		"tau": 5,
 	        "m": 580,
 	        "k": 24,
 		"t": 3,
 		"data": "/home/user/data_adj.csv",
 		"details": "/home/user/data_details.csv",
-		"d_path": "/home/user/dictionary.gz"
+		"embed": {
+			"method": "walk2vec-sc",
+			"tau": 5,
+			"d_path": "/home/user/dictionary.gz"
+		}
 	})
 	env = gym_kidney.LogWrapper(env, NN, EXP, OUT, FREQ, PARAM)
 	act = deepq.load("kidney_model.pkl")
