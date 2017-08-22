@@ -25,6 +25,7 @@ class LogWrapper(Wrapper):
 		# param
 		keys = [
 			"seed",
+			"method",
 			"tau",
 			"alpha",
 			"t",
@@ -35,8 +36,9 @@ class LogWrapper(Wrapper):
 
 		values = list(map(str, [
 			env.seed,
-			env.tau,
-			env.alpha,
+			env.embed["method"],
+			env.embed["tau"],
+			env.embed["alpha"],
 			env.t,
 			env.cycle_cap,
 			env.chain_cap,
