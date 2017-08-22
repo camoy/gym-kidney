@@ -57,7 +57,7 @@ class KidneyEnv(gym.Env):
 		self.action_space = spaces.Box(
 			-4,
 			4,
-			(1,))
+			(25,))
 		self.observation_space = spaces.Box(
 			-np.inf,
 			np.inf,

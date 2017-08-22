@@ -39,7 +39,7 @@ def reweight(g, action):
 	for u, v, d in g.edges(data = True):
 		o1 = output_weight(g, u, action)
 		o2 = output_weight(g, v, action)
-		d["weight"] = d["weight"] - 0.5*(o1+o2)
+		d["weight"] = 1 - 0.5*(o1+o2)
 	return g
 
 def nx_to_ks(g):
