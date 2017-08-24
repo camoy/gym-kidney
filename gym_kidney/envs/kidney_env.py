@@ -81,9 +81,6 @@ class KidneyEnv(gym.Env):
 		reward = 0
 		match = ([], [])
 
-		action = list(map(lambda x: 0 if np.isnan(x) else x, action))
-		action = np.array(action)
-
 		self.graph = kc.reweight(self.graph, action)
 		d, ndds = kc.nx_to_ks(self.graph)
 		cfg = ks.kidney_ip.OptConfig(

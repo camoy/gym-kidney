@@ -47,11 +47,13 @@ def _trans(g, deg):
 	adj = nx.to_scipy_sparse_matrix(g, format = "csc")
 	return (deg * adj).T
 
-def _dist(pr, ps, pt):
-	num = pt.T.dot(np.divide(ps, pr)).item(0)
-	ps_l2 = np.linalg.norm(np.divide(ps, np.sqrt(pr)))
-	pt_l2 = np.linalg.norm(np.divide(pt, np.sqrt(pr)))
-	return num / (ps_l2 * pt_l2)
+def _kl_sym_div(p, q):
+	with np.errstate(divide = "ignore", invalid = "ignore"):
+		pq_log = np.ma.log(np.nan_to_num(p / q))
+		qp_log = np.ma.log(np.nan_to_num(q / p))
+		s1 = p.T.dot(pq_log.filled(0)).item(0)
+		s2 = q.T.dot(qp_log.filled(0)).item(0)
+		return s1 + s2
 
 def _feature(g, p0, tau, alpha):
 	"""
@@ -62,11 +64,9 @@ def _feature(g, p0, tau, alpha):
 	n, m = g.order(), []
 	deg_inv = _degrees_inv(g)
 	ps = _walks(g, _trans(g, deg_inv), p0, tau, alpha)
-	pr = np.absolute(list(nx.pagerank(g, alpha = alpha).values()))
-	pr = sp.csc_matrix(pr).T
 	for s in range(tau):
 		for t in range(s+1, tau+1):
-			m += [_dist(pr, ps[s], ps[t])]
+			m += [_kl_sym_div(ps[s], ps[t])]
 	return m
 
 #
