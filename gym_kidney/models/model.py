@@ -6,12 +6,11 @@ class Model:
 	# stats :: Dictionary
 	stats = {}
 
-	# evolve :: ... -> (Boolean, NetworkX.Graph)
-	def evolve(self, G, M, rng, tick):
-		G = self._process_matches(G, M)
+	# evolve :: ... -> (NetworkX.Graph, Boolean)
+	def evolve(self, G, rng, tick):
 		G = self.arrive(G, rng)
 		G = self.depart(G, rng)
-		return self.done(tick), G
+		return G, self.done(tick)
 
 	# arrive :: NetworkX.Graph -> NetworkX.Graph
 	def arrive(self, G):
@@ -43,23 +42,3 @@ class Model:
 	# _inv_dict :: Dictionary -> Dictionary
 	def _inv_dict(self, d):
 		return dict((v, k) for k, v in d.items())
-
-	# _process_matches :: NetworkX.Graph -> Matching -> NetworkX.Graph
-	def _process_matches(self, G, M):
-		if len(M) == 0:
-			return G
-
-		d_dd, d_ndd = self._relabel(G)
-		d_dd, d_ndd = self._inv_dict(d_dd), self._inv_dict(d_ndd)
-		cycle, chain = M
-		out = []
-
-		for vs in cycle:
-			out += list(map(lambda u: d_dd[u.id], vs))
-		for c in chain:
-			vs = c.vtx_indices
-			out += [d_ndd[c.ndd_index]]
-			out += list(map(lambda u: d_dd[u], vs))
-
-		G.remove_nodes_from(out)
-		return nx.convert_node_labels_to_integers(G)

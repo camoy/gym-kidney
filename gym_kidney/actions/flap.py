@@ -1,5 +1,6 @@
 from gym import spaces
 from gym_kidney import actions
+from gym_kidney import _solver
 
 class FlapAction(actions.Action):
 
@@ -24,12 +25,12 @@ class FlapAction(actions.Action):
 			return (G, 0)
 
 		dd, ndd = self._nx_to_ks(G)
-		cfg = ks.kidney_ip.OptConfig(
+		cfg = _solver.kidney_ip.OptConfig(
 			dd,
 			ndd,
 			self.cycle_cap,
 			self.chain_cap)
-		soln = ks.solve_kep(cfg, "picef")
+		soln = _solver.solve_kep(cfg, "picef")
 		M = (soln.cycles, soln.chains)
 		G = self._process_matches(G, M)
 
@@ -37,7 +38,7 @@ class FlapAction(actions.Action):
 		rew_chains = sum(map(lambda x: len(x.vtx_indices), soln.chains))
 		reward = rew_cycles + rew_chains
 
-		self.cycle_reward += rew_cycles
-		self.chain_reward += rew_chains
+		self.stats["cycle_reward"] += rew_cycles
+		self.stats["chain_reward"] += rew_chains
 
 		return (G, reward)

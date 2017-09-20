@@ -40,9 +40,9 @@ class HomogeneousModel(models.Model):
 			for v in G.nodes():
 				ndd_v = G.node[v]["ndd"]
 				if u == v: continue
-				if rng.rand() < p and not ndd_v:
+				if rng.rand() < self.p and not ndd_v:
 					G.add_edge(u, v)
-				if rng.rand() < p and not ndd_u:
+				if rng.rand() < self.p and not ndd_u:
 					G.add_edge(v, u)
 
 		self.stats["arrived"] += n2

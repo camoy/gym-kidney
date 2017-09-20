@@ -40,6 +40,7 @@ def main():
 		obs, done = env.reset(), False
 		while not done:
 			_, _, done, _ = env.step([1])
+			env.render()
 
 if __name__ == "__main__":
 	main()

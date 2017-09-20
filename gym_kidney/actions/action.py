@@ -1,4 +1,7 @@
 from gym import spaces
+from gym_kidney import _solver
+
+import networkx as nx
 
 class Action:
 
@@ -11,11 +14,11 @@ class Action:
 	# action_space :: Gym.Space
 	action_space = spaces.Discrete(0)
 
-	# do_action :: NetworkX.Graph -> Gym.Space -> NetworkX.Graph
+	# do_action :: ... -> (NetworkX.Graph, Reward)
 	def do_action(G, action):
 		raise NotImplementedError
 
-	# _relabel :: NetworkX.Graph -> (DD Dictionary, NDD Dictionary)
+	# _relabel :: NetworkX.Graph -> (Int, Int, DD Dict, NDD Dict)
 	def _relabel(self, G):
 		n_dd, n_ndd = 0, 0
 		d_dd, d_ndd = {}, {}
@@ -39,7 +42,7 @@ class Action:
 		if len(M) == 0:
 			return G
 
-		d_dd, d_ndd = self._relabel(G)
+		_, _, d_dd, d_ndd = self._relabel(G)
 		d_dd, d_ndd = self._inv_dict(d_dd), self._inv_dict(d_ndd)
 		cycle, chain = M
 		out = []
@@ -58,20 +61,20 @@ class Action:
 	def _nx_to_ks(self, G):
 		n_dd, n_ndd, d_dd, d_ndd = self._relabel(G)
 
-		dd = ks.Digraph(n_dd)
+		dd = _solver.Digraph(n_dd)
 		for u, v, d in G.edges(data = True):
 			if not G.node[u]["ndd"]:
 				dd.add_edge(
-					d["weight"] if d["weight"] else 1.0,
+					d["weight"] if ("weight" in d) else 1.0,
 					dd.vs[d_dd[u]],
 					dd.vs[d_dd[v]])
 
-		ndd = [ks.kidney_ndds.Ndd() for _ in range(n_ndd)]
-		for u, v, d in g.edges(data = True):
+		ndd = [_solver.kidney_ndds.Ndd() for _ in range(n_ndd)]
+		for u, v, d in G.edges(data = True):
 			if G.node[u]["ndd"]:
-				edge = ks.kidney_ndds.NddEdge(
-					digraph.vs[d_dd[v]],
-					d["weight"] if d["weight"] else 1.0)
+				edge = _solver.kidney_ndds.NddEdge(
+					dd.vs[d_dd[v]],
+					d["weight"] if ("weight" in d) else 1.0)
 				ndd[d_ndd[u]].add_edge(edge)
 		
 		return dd, ndd

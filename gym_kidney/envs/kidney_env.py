@@ -6,6 +6,7 @@ import numpy as np
 import networkx as nx
 
 class KidneyEnv(gym.Env):
+	metadata = { "render.modes" : ["human"] }
 
 	def setup(self):
 		self.action_space = self.action.action_space
@@ -20,7 +21,7 @@ class KidneyEnv(gym.Env):
 	def _step(self, action):
 		G = self.G
 		G, reward = self.action.do_action(G, action)
-		G, done = self.model.evolve(G, self.tick, self.rng)
+		G, done = self.model.evolve(G, self.rng, self.tick)
 
 		self.G = G
 		self.tick += 1
@@ -36,7 +37,7 @@ class KidneyEnv(gym.Env):
 	def _obs(self):
 		return self.embedding.embed(self.G)
 
-	def _render(self, close = False):
+	def _render(self, mode = "human", close = False):
 		if close:
 			return
 
