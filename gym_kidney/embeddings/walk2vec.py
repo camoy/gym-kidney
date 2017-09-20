@@ -148,22 +148,37 @@ def pool_max(alpha):
 #
 # WALK2VEC
 #
-def phi(g, p0s, tau, alpha):
-	"""
-	Given graph g, list of initial distribution generating
-	functions p0s, jump probability alpha,and walk cap tau.
-	Returns embedding of g.
-	"""
 
-	# empty graph
-	if g.order() == 0:
-		return [0]*(int(len(p0s)*((tau**2+tau)/2)))
+class Walk2VecEmbedding(Embedding):
+	def __init__(p0s, tau, alpha):
+		self.p0s = p0s
+		self.tau = tau
+		self.alpha = alpha
 
-	# non-empty graphs
-	phi = []
-	for i, p0_i in enumerate(p0s):
-		phi += _feature(g, p0_i(g), tau, alpha)
-	return phi
+		self.params = {
+			"tau": tau,
+			"alpha": alpha
+		}
+
+	def embed(self, g):
+		"""
+		Given graph g, list of initial distribution generating
+		functions p0s, jump probability alpha,and walk cap tau.
+		Returns embedding of g.
+		"""
+		p0s = self.p0s
+		tau = self.tau
+		alpha = self.alpha
+
+		# empty graph
+		if g.order() == 0:
+			return [0]*(int(len(p0s)*((tau**2+tau)/2)))
+
+		# non-empty graphs
+		phi = []
+		for i, p0_i in enumerate(p0s):
+			phi += _feature(g, p0_i(g), tau, alpha)
+		return phi
 
 #
 # WALK2VEC SPARSE CODING
@@ -180,45 +195,71 @@ def _all_features(g, tau, alpha):
 		xs += [_feature(g, _p0_dirac(g, i), tau, alpha)]
 	return xs
 
-def train(g, tau, alpha, d = None, params = {}):
-	"""
-	Given graph g and walk cap tau. Given optional dictionary
-	d and training parameters params. Returns dictionary after
-	training.
-	"""
-	if g.order() == 0:
-		return d
+class Walk2VecScEmbedding(Embedding)
 
-	xs_mat = np.column_stack(_all_features(g, tau, alpha))
-	xs = np.asfortranarray(xs_mat, dtype=float)
-	default_params = {
-		"K": 100,
-		"lambda1": 0.15,
-		"iter": 100,
-		"batchsize": 5,
-		"verbose": False
-	}
-	params = {**default_params, **params}
-	return spams.trainDL(xs, **params)
+	def __init__(tau, alpha, d, pool, param_coding):
+		self.tau = tau
+		self.alpha = alpha
+		self.d = d 
+		self.pool = pool 
+		self.param_coding = param_coding
 
-def phi_sc(g, tau, alpha, d, pool, params = {}):
-	"""
-	Given graph g, initial distribution generating function
-	p0, and walk cap tau, dictionary d, and pooling function
-	pool. Given optional coding parameters params. Returns
-	embedding of g.
-	"""
-	atoms = d.shape[1]
-	if g.order() == 0:
-		return [0]*atoms
+		self.params = {
+			"tau": tau,
+			"alpha": alpha
+		}
 
-	xs_mat = np.column_stack(_all_features(g, tau, alpha))
-	xs = np.asfortranarray(xs_mat, dtype=float)
+	def embed(self, g):
+		"""
+		Given graph g, initial distribution generating function
+		p0, and walk cap tau, dictionary d, and pooling function
+		pool. Given optional coding parameters params. Returns
+		embedding of g.
+		"""
+		tau = self.tau
+		alpha = self.alpha
+		d = self.d 
+		pool = self.pool 
+		param_coding = self.param_coding
+		atoms = d.shape[1]
 
-	default_params = {
-		"lambda1": 0.15
-	}
-	params = {**default_params, **params}
+		if g.order() == 0:
+			return [0]*atoms
 
-	a = spams.lasso(xs, D = d, **params).todense()
-	return np.asarray(pool(a)).reshape(-1)
+		xs_mat = np.column_stack(_all_features(g, tau, alpha))
+		xs = np.asfortranarray(xs_mat, dtype=float)
+
+		default_params = {
+			"lambda1": 0.15
+		}
+		param_coding = {**default_params, **param_coding}
+
+		a = spams.lasso(xs, D = d, **param_coding).todense()
+		return np.asarray(pool(a)).reshape(-1)
+
+	def train(self, g):
+		"""
+		Given graph g and walk cap tau. Given optional dictionary
+		d and training parameters params. Returns dictionary after
+		training.
+		"""
+		tau = self.tau
+		alpha = self.alpha
+		d = self.d 
+		pool = self.pool 
+		param_coding = self.param_coding
+
+		if g.order() == 0:
+			return d
+
+		xs_mat = np.column_stack(_all_features(g, tau, alpha))
+		xs = np.asfortranarray(xs_mat, dtype=float)
+		default_params = {
+			"K": 100,
+			"lambda1": 0.15,
+			"iter": 100,
+			"batchsize": 5,
+			"verbose": False
+		}
+		param_coding = {**default_params, **param_coding}
+		return spams.trainDL(xs, **param_coding)
