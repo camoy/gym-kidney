@@ -2,18 +2,6 @@
 
 OpenAI Gym environment for kidney exchange.
 
-## TODO
-
-* Logging mechanism
-* Debugging
-* Blood type action space
-* Cycle counting embedding
-* node2vec and sparse coding embedding
-* example agents
-* heterogeneous model
-* data model
-* contrived model
-
 ## Installation
 
     pip install -e .
