@@ -7,7 +7,7 @@ import networkx as nx
 
 class KidneyEnv(gym.Env):
 
-	def setup():
+	def setup(self):
 		self.action_space = self.action.action_space
 		self.observation_space = self.embedding.observation_space
 		self._seed()
@@ -19,7 +19,7 @@ class KidneyEnv(gym.Env):
 
 	def _step(self, action):
 		G = self.G
-		G, reward = self.action.do_action(G)
+		G, reward = self.action.do_action(G, action)
 		G, done = self.model.evolve(G, self.tick, self.rng)
 
 		self.G = G

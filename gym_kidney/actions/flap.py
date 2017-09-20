@@ -1,10 +1,11 @@
 from gym import spaces
+from gym_kidney import actions
 
-class FlapAction(Action):
+class FlapAction(actions.Action):
 
 	action_space = spaces.Discrete(1)
 
-	def __init__(cycle_cap, chain_cap):
+	def __init__(self, cycle_cap, chain_cap):
 		self.cycle_cap = cycle_cap
 		self.chain_cap = chain_cap
 

@@ -1,4 +1,6 @@
-from embedding import Embedding
+from gym_kidney import embeddings
+from gym import spaces
+
 import numpy as np
 import networkx as nx
 
@@ -7,7 +9,7 @@ import networkx as nx
 # all non-directed donors.
 #
 
-class ChainEmbedding(Embedding):
+class ChainEmbedding(embeddings.Embedding):
 
 	observation_space = spaces.Box(0, np.inf, (1,))
 

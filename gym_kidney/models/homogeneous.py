@@ -1,11 +1,12 @@
-from model import Model
+from gym_kidney import models
+
 import networkx as nx
 
 #
 # Homogeneous Erdős–Rényi model
 #
 
-class HomogeneousModel(Model):
+class HomogeneousModel(models.Model):
 
 	def __init__(self, m, k, p, p_a, len):
 		self.m = m

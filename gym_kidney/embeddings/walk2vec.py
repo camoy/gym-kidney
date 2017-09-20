@@ -1,8 +1,11 @@
+from gym_kidney import embeddings
+from gym import spaces
+
 import math
 import networkx as nx
 import numpy as np
 import scipy.sparse as sp
-import spams
+# import spams
 
 #
 # MAIN FUNCTIONS
@@ -149,7 +152,7 @@ def pool_max(alpha):
 # WALK2VEC
 #
 
-class Walk2VecEmbedding(Embedding):
+class Walk2VecEmbedding(embeddings.Embedding):
 	def __init__(p0s, tau, alpha):
 		self.p0s = p0s
 		self.tau = tau
@@ -184,6 +187,8 @@ class Walk2VecEmbedding(Embedding):
 # WALK2VEC SPARSE CODING
 #
 
+'''
+
 def _all_features(g, tau, alpha):
 	"""
 	Given graph g, initial distribution generating function
@@ -195,7 +200,7 @@ def _all_features(g, tau, alpha):
 		xs += [_feature(g, _p0_dirac(g, i), tau, alpha)]
 	return xs
 
-class Walk2VecScEmbedding(Embedding)
+class Walk2VecScEmbedding(embeddings.Embedding):
 
 	def __init__(tau, alpha, d, pool, param_coding):
 		self.tau = tau
@@ -263,3 +268,4 @@ class Walk2VecScEmbedding(Embedding)
 		}
 		param_coding = {**default_params, **param_coding}
 		return spams.trainDL(xs, **param_coding)
+'''

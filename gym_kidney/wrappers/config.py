@@ -3,12 +3,12 @@ from gym import Wrapper
 
 class ConfigWrapper(Wrapper):
 
-	def __init__(self, env, action, embedding, model, logging):
+	def __init__(self, env, action, embedding, model, logger):
 		env = env.unwrapped
 		env.action = action
 		env.embedding = embedding
 		env.model = model
-		env.logging = logging
+		env.logger = logger
 		env.setup()
 
 		super(ConfigWrapper, self).__init__(env)

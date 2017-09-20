@@ -1,4 +1,6 @@
-from embedding import Embedding
+from gym_kidney import embeddings
+from gym import spaces
+
 import numpy as np
 import networkx as nx
 
@@ -6,7 +8,7 @@ import networkx as nx
 # Unions set of embeddings.
 #
 
-class UnionEmbedding(Embedding):
+class UnionEmbedding(embeddings.Embedding):
 
 	def __init__(self, embeddings):
 		len = len(embeddings)
@@ -15,7 +17,7 @@ class UnionEmbedding(Embedding):
 		for e in self.embeddings:
 			low = min(low, e.observation_space.low)
 			high = max(high, e.observation_space.high)
-			self.params = {**self.params, e.params}
+			self.params = {**self.params, **e.params}
 
 		self.observation_space = spaces.Box(low, high, (len,))
 		self.embeddings = embeddings
