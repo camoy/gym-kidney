@@ -19,7 +19,7 @@ class ChainEmbedding(embeddings.Embedding):
 		for u in G.nodes_iter():
 			if G.node[u]["ndd"]:
 				len += paths[u]
-		return [len]
+		return np.array([len])
 
 	def _longest_paths(G):
 		dist = {}

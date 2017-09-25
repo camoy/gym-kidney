@@ -11,6 +11,6 @@ class Embedding:
 	# observation_space :: Gym.Space
 	observation_space = spaces.Box(0, 0, (0,))
 	
-	# embed :: NetworkX.Graph -> Array
+	# embed :: NetworkX.Graph -> NumPy Array
 	def embed(self, g):
 		raise NotImplementedError

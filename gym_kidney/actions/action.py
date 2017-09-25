@@ -12,7 +12,7 @@ class Action:
 	stats = {}
 
 	# action_space :: Gym.Space
-	action_space = spaces.Discrete(0)
+	action_space = spaces.Discrete(2)
 
 	# do_action :: ... -> (NetworkX.Graph, Reward)
 	def do_action(G, action):

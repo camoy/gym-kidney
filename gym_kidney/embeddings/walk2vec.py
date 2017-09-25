@@ -153,7 +153,7 @@ def pool_max(alpha):
 #
 
 class Walk2VecEmbedding(embeddings.Embedding):
-	def __init__(p0s, tau, alpha):
+	def __init__(self, p0s, tau, alpha):
 		self.p0s = p0s
 		self.tau = tau
 		self.alpha = alpha
@@ -181,7 +181,7 @@ class Walk2VecEmbedding(embeddings.Embedding):
 		phi = []
 		for i, p0_i in enumerate(p0s):
 			phi += _feature(g, p0_i(g), tau, alpha)
-		return phi
+		return np.array(phi)
 
 #
 # WALK2VEC SPARSE CODING
@@ -202,7 +202,7 @@ def _all_features(g, tau, alpha):
 
 class Walk2VecScEmbedding(embeddings.Embedding):
 
-	def __init__(tau, alpha, d, pool, param_coding):
+	def __init__(self, tau, alpha, d, pool, param_coding):
 		self.tau = tau
 		self.alpha = alpha
 		self.d = d 

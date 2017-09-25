@@ -23,9 +23,9 @@ class UnionEmbedding(embeddings.Embedding):
 		self.embeddings = embeddings
 
 	def embed(self, G):
-		embedding = []
+		embedding = np.array([])
 
 		for e in self.embeddings:
-			embedding += e.embed(G)
+			embedding = np.concatenate((embedding, e.embed(G)))
 
 		return embedding

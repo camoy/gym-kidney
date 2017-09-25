@@ -4,7 +4,7 @@ from gym_kidney import _solver
 
 class FlapAction(actions.Action):
 
-	action_space = spaces.Discrete(1)
+	action_space = spaces.Discrete(2)
 
 	def __init__(self, cycle_cap, chain_cap):
 		self.cycle_cap = cycle_cap
@@ -21,7 +21,7 @@ class FlapAction(actions.Action):
 		}
 
 	def do_action(self, G, action):
-		if action[0] == 0:
+		if action == 0:
 			return (G, 0)
 
 		dd, ndd = self._nx_to_ks(G)
