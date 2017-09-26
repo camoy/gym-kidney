@@ -5,9 +5,8 @@ import numpy as np
 import networkx as nx
 
 #
-# Unions set of embeddings.
+# UnionEmbedding unions a set of embeddings.
 #
-
 class UnionEmbedding(embeddings.Embedding):
 
 	def __init__(self, embeddings):

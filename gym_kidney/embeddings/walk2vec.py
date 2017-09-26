@@ -148,10 +148,19 @@ def pool_max(alpha):
 	"""
 	return np.amax(alpha, axis=1)
 
-#
-# WALK2VEC
-#
+# A DistrFun is one of:
+# - p0_min Dirac delta distribution at vertex of min degree
+# - p0_max Dirac delta distribution at vertex of max egree
+# - p0_median Dirac delta distribution at vertex of median degree
+# - p0_mean Dirac delta distribution at vertex of mean degree
 
+#
+# Walk2VecEmbedding embeds the graph according to a modified Walk2Vec
+# random walk method. It it parametrized by:
+# - (p0s :: [DistrFun]) initial distributions
+# - (tau :: Nat) steps in the random walk
+# - (alpha :: (0, 1]) jump probability
+#
 class Walk2VecEmbedding(embeddings.Embedding):
 	def __init__(self, p0s, tau, alpha):
 		self.p0s = p0s

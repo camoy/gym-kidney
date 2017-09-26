@@ -5,9 +5,8 @@ import numpy as np
 import networkx as nx
 
 #
-# NOP Embedding.
+# NopEmbedding is empty.
 #
-
 class NopEmbedding(embeddings.Embedding):
 
 	observation_space = spaces.Box(0, 0, (0,))

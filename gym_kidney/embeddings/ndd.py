@@ -5,9 +5,8 @@ import numpy as np
 import networkx as nx
 
 #
-# Embeds number of non-directed donors.
+# NddEmbedding embeds the number of non-directed donors.
 #
-
 class NddEmbedding(embeddings.Embedding):
 
 	observation_space = spaces.Box(0, np.inf, (1,))

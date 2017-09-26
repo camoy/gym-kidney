@@ -5,10 +5,9 @@ import numpy as np
 import networkx as nx
 
 #
-# Returns sum of longest chains possible from
+# ChainEmbedding embeds the sum of longest chains possible from
 # all non-directed donors.
 #
-
 class ChainEmbedding(embeddings.Embedding):
 
 	observation_space = spaces.Box(0, np.inf, (1,))

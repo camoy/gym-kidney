@@ -1,5 +1,11 @@
 from gym_kidney import loggers
 
+#
+# CsvLogger outputs the log as a CSV file. It is parametrized
+# by:
+# - (path :: String) the directory the file will go
+# - (exp :: Nat) the number of the experiment
+#
 class CsvLogger(loggers.Logger):
 
 	def __init__(self, path, exp):

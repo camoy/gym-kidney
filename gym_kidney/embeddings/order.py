@@ -5,9 +5,8 @@ import numpy as np
 import networkx as nx
 
 #
-# Embeds order of the graph.
+# OrderEmbedding embeds the order of the graph.
 #
-
 class OrderEmbedding(embeddings.Embedding):
 
 	observation_space = spaces.Box(0, np.inf, (1,))

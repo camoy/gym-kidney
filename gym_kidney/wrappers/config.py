@@ -1,6 +1,9 @@
 import gym
 from gym import Wrapper
 
+#
+# ConfigWrapper initializes the environment with the given components.
+#
 class ConfigWrapper(Wrapper):
 
 	def __init__(self, env, action, embedding, model, logger):

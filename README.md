@@ -21,6 +21,27 @@ OpenAI Gym environment for kidney exchange.
 
 ## Usage
 
-To run an example, replace the `OUT` variable in the script to any
-file path. The experimental results will be appended to this file.
-Then, run the script.
+See the files in `examples/` and run them, substituting appropriate
+parameters.
+
+## Organization
+
+The components of the environment are split into several directories.
+Each component is modular and described in more detail in the `README`
+located in the respective directory. Here is a brief overview.
+
+* `_solver/` contains James Trimble's
+  [kidney solver](https://github.com/jamestrimble/kidney_solver). This
+  should not be modified.
+* `actions/` specify the action space of any agent interacting with
+  the environment.
+* `embeddings/` contain modules which embed the kidney exchange graph
+  into a fixed size vector.
+* `envs/` has only the main kidney environment driver.
+* `loggers/` implement different means to record experimental output
+  from the environment.
+* `models/` determine how the kidney exchange evolves over time.
+* `wrappers/` contains auxiliary classes for configuring the environment.
+
+Most classes inherit from an abstract class specifying the expected
+methods every subclass must implement.

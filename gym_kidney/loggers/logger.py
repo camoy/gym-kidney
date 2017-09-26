@@ -1,16 +1,15 @@
+#
+# Logger is an abstract class to be implemented by all loggers
+# recording the environment.
+#
 class Logger:
-
-	# params :: Dictionary
-	params = {}
-
-	# stats :: Dictionary
-	stats = {}
-
 	# output_log :: Environment -> None
+	# Outputs logged information to a file
 	def output_log(self, env):
 		raise NotImplementedError
 
 	# _flush_stat :: Environment -> None
+	# Clears all statistics
 	def _flush_stat(self, env):
 		components = [env.action, env.embedding, env.model]
 

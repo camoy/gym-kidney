@@ -3,9 +3,14 @@ from gym_kidney import models
 import networkx as nx
 
 #
-# Homogeneous Erdős–Rényi model
+# HomogeneousModel evolves the graph according to a homogeneous
+# Erdős–Rényi random model. Parametrized by:
+# - (m :: Nat) expected vertices per period
+# - (k :: Nat) ticks per period
+# - (p :: [0, 1]) probability of edge between vertices
+# - (p_a :: [0, 1]) probability of NDD
+# - (len :: Nat) ticks per episode
 #
-
 class HomogeneousModel(models.Model):
 
 	def __init__(self, m, k, p, p_a, len):

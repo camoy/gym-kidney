@@ -5,6 +5,9 @@ from gym.utils import seeding
 import numpy as np
 import networkx as nx
 
+#
+# KidneyEnv is the main environment driver.
+#
 class KidneyEnv(gym.Env):
 	metadata = { "render.modes" : ["human"] }
 
