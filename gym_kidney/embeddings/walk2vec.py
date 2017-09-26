@@ -157,11 +157,14 @@ class Walk2VecEmbedding(embeddings.Embedding):
 		self.p0s = p0s
 		self.tau = tau
 		self.alpha = alpha
+		self.size = int(len(p0s)*((tau**2+tau)/2))
 
 		self.params = {
 			"tau": tau,
 			"alpha": alpha
 		}
+
+		self.observation_space = spaces.Box(0, np.inf, (self.size,))
 
 	def embed(self, g):
 		"""
@@ -175,7 +178,7 @@ class Walk2VecEmbedding(embeddings.Embedding):
 
 		# empty graph
 		if g.order() == 0:
-			return np.array([0]*(int(len(p0s)*((tau**2+tau)/2))))
+			return np.array([0]*self.size)
 
 		# non-empty graphs
 		phi = []
