@@ -175,7 +175,7 @@ class Walk2VecEmbedding(embeddings.Embedding):
 
 		# empty graph
 		if g.order() == 0:
-			return [0]*(int(len(p0s)*((tau**2+tau)/2)))
+			return np.array([0]*(int(len(p0s)*((tau**2+tau)/2))))
 
 		# non-empty graphs
 		phi = []
@@ -229,7 +229,7 @@ class Walk2VecScEmbedding(embeddings.Embedding):
 		atoms = d.shape[1]
 
 		if g.order() == 0:
-			return [0]*atoms
+			return np.array([0]*atoms)
 
 		xs_mat = np.column_stack(_all_features(g, tau, alpha))
 		xs = np.asfortranarray(xs_mat, dtype=float)
