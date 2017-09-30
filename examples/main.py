@@ -5,6 +5,7 @@ from gym_kidney import actions, agents, embeddings, \
 
 # LOCAL CONSTS
 EPISODES = 100
+SHOW = False
 
 # AGENT CONSTS
 AGENT = agents.GreedyAgent()
@@ -33,8 +34,10 @@ LOGGING = loggers.CsvLogger(PATH, EXP)
 # MAIN
 def main():
 	env = gym.make("kidney-v0")
-	env = wrappers.ConfigWrapper(env, ACTION, EMBEDDING, MODEL, LOGGING)
-	AGENT.run(env, EPISODES)
+	env = wrappers.ConfigWrapper(env, ACTION, AGENT, EMBEDDING,
+		MODEL, LOGGING)
+	env = wrappers.RunWrapper(env, EPISODES, SHOW)
+	env.run()
 
 if __name__ == "__main__":
 	main()

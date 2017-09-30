@@ -3,8 +3,8 @@ from gym_kidney import loggers
 #
 # CsvLogger outputs the log as a CSV file. It is parametrized
 # by:
-# - (path :: String) the directory the file will go
-# - (exp :: Nat) the number of the experiment
+# - path : String, the directory the file will go
+# - exp : Nat, the number of the experiment
 #
 class CsvLogger(loggers.Logger):
 
@@ -16,7 +16,7 @@ class CsvLogger(loggers.Logger):
 		self.output_headers = False
 
 	def output_log(self, env):
-		components = [env.action, env.embedding, env.model]
+		components = [env.action, env.agent, env.embedding, env.model]
 		params = {}
 		stats = {}
 

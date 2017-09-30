@@ -6,9 +6,10 @@ from gym import Wrapper
 #
 class ConfigWrapper(Wrapper):
 
-	def __init__(self, env, action, embedding, model, logger):
+	def __init__(self, env, action, agent, embedding, model, logger):
 		env = env.unwrapped
 		env.action = action
+		env.agent = agent
 		env.embedding = embedding
 		env.model = model
 		env.logger = logger

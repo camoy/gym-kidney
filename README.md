@@ -36,12 +36,12 @@ located in the respective directory. Here is a brief overview.
 * `actions/` specify the action space of any agent interacting with
   the environment.
 * `embeddings/` contain modules which embed the kidney exchange graph
-  into a fixed size vector.
+  into a fixed-size vector.
 * `envs/` has only the main kidney environment driver.
 * `loggers/` implement different means to record experimental output
   from the environment.
 * `models/` determine how the kidney exchange evolves over time.
-* `wrappers/` contains auxiliary classes for configuring the environment.
+* `wrappers/` contains auxiliary classes for modifying the environment.
 
 Most classes inherit from an abstract class specifying the expected
 methods every subclass must implement.
