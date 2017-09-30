@@ -12,7 +12,7 @@ class ChainEmbedding(embeddings.Embedding):
 
 	observation_space = spaces.Box(0, np.inf, (1,))
 
-	def embed(self, G):
+	def embed(self, G, rng):
 		len = 0
 		paths = self._longest_paths(G)
 		for u in G.nodes_iter():

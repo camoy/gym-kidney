@@ -12,6 +12,18 @@ on other embeddings.
 An atomic embedding that embeds the sum of the longest chains possible from
 all non-directed donors.
 
+## `CycleFixedEmbedding`
+
+An atomic embedding that embeds an estimate for the number of cycles of a
+certain length in the graph. It uses a fixed amount of samples to make
+an estimate.
+
+## `CycleVariableEmbedding`
+
+An atomic embedding that embeds an estimate for the number of cycles of a
+certain length in the graph. It uses a variable amount of samples to make
+an estimate.
+
 ## `DdEmbedding`
 
 An atomic embedding that embeds the number of directed donors.

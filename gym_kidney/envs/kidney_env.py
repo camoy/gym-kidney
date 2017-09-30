@@ -38,7 +38,7 @@ class KidneyEnv(gym.Env):
 		return self._obs()
 
 	def _obs(self):
-		return self.embedding.embed(self.G)
+		return self.embedding.embed(self.G, self.rng)
 
 	def _render(self, mode = "human", close = False):
 		if close:

@@ -11,7 +11,7 @@ class DdEmbedding(embeddings.Embedding):
 
 	observation_space = spaces.Box(0, np.inf, (1,))
 
-	def embed(self, G):
+	def embed(self, G, rng):
 		dd = 0
 		for u in G.nodes_iter():
 			if not G.node[u]["ndd"]:

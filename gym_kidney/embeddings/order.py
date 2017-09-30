@@ -11,5 +11,5 @@ class OrderEmbedding(embeddings.Embedding):
 
 	observation_space = spaces.Box(0, np.inf, (1,))
 
-	def embed(self, G):
+	def embed(self, G, rng):
 		return np.array([G.order()])

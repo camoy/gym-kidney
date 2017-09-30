@@ -175,7 +175,7 @@ class Walk2VecEmbedding(embeddings.Embedding):
 
 		self.observation_space = spaces.Box(0, np.inf, (self.size,))
 
-	def embed(self, g):
+	def embed(self, g, rng):
 		"""
 		Given graph g, list of initial distribution generating
 		functions p0s, jump probability alpha,and walk cap tau.
@@ -226,7 +226,7 @@ class Walk2VecScEmbedding(embeddings.Embedding):
 			"alpha": alpha
 		}
 
-	def embed(self, g):
+	def embed(self, g, rng):
 		"""
 		Given graph g, initial distribution generating function
 		p0, and walk cap tau, dictionary d, and pooling function

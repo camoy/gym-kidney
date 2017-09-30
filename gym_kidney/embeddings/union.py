@@ -21,7 +21,7 @@ class UnionEmbedding(embeddings.Embedding):
 		self.observation_space = spaces.Box(low, high, (len,))
 		self.embeddings = embeddings
 
-	def embed(self, G):
+	def embed(self, G, rng):
 		embedding = np.array([])
 
 		for e in self.embeddings:

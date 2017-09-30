@@ -17,7 +17,7 @@ class Embedding:
 	# The observation space of the gym
 	observation_space = spaces.Box(0, 0, (0,))
 	
-	# embed : Graph -> NP Array
+	# embed : Graph, RNG -> NP Array
 	# Embeds the graph into a fixed-size vector
-	def embed(self, G):
+	def embed(self, G, rng):
 		raise NotImplementedError
