@@ -7,7 +7,7 @@ from gym import spaces
 #
 class GreedyAgent(agents.Agent):
 
-	def act(self, env, obs):
+	def act(self, env, obs, done):
 		action_space = env.action_space
 
 		if isinstance(action_space, spaces.Discrete):

@@ -7,6 +7,6 @@ from gym import spaces
 #
 class RandomAgent(agents.Agent):
 
-	def act(self, env, obs):
+	def act(self, env, obs, done):
 		action_space = env.action_space
 		return action_space.sample()

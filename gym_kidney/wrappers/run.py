@@ -24,7 +24,7 @@ class RunWrapper(Wrapper):
 		env = self.env
 		obs, done = env.reset(), False
 		while not done:
-			action = env.agent.act(env, obs)
+			action = env.agent.act(env, obs, done)
 			obs, reward, done, _ = env.step(action)
 			if self.show:
 				env.render()

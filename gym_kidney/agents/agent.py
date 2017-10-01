@@ -10,8 +10,8 @@ class Agent:
 	# stats : Dict
 	stats = {}
 
-	# act : Env, NP Array -> Action
+	# act : Env, NP Array, Bool -> Action
 	# Decides on an action based on an observation
-	def act(self, env, obs):
+	def act(self, env, obs, done):
 		raise NotImplementedError
 
