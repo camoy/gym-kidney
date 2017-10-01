@@ -5,12 +5,14 @@ from gym_kidney import loggers
 # by:
 # - path : String, the directory the file will go
 # - exp : Nat, the number of the experiment
+# - custom : Dict, dictionary of custom parameters
 #
 class CsvLogger(loggers.Logger):
 
-	def __init__(self, path, exp):
+	def __init__(self, path, exp, custom = {}):
 		self.path = path
 		self.exp = exp
+		self.custom = custom
 		self.param_file = "%s/%03d_%s.csv" % (path, exp, "PARAM")
 		self.stat_file = "%s/%03d_%s.csv" % (path, exp, "STAT")
 		self.output_headers = False
@@ -21,7 +23,7 @@ class CsvLogger(loggers.Logger):
 		stats = {}
 
 		for component in components:
-			params = {**params, **component.params}
+			params = {**params, **component.params, **self.custom}
 			stats = {**stats, **component.stats}
 
 		if not self.output_headers:

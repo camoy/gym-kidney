@@ -26,7 +26,8 @@ MODEL = models.HomogeneousModel(M, K, P, P_A, LEN)
 # LOGGING CONSTS
 PATH = "/home/camoy/tmp/"
 EXP = 0
-LOGGING = loggers.CsvLogger(PATH, EXP)
+CUSTOM = { "agent" : "greedy" }
+LOGGING = loggers.CsvLogger(PATH, EXP, CUSTOM)
 
 # MAIN
 def main():
