@@ -1,14 +1,11 @@
 import gym
 import gym_kidney
-from gym_kidney import actions, agents, embeddings, \
+from gym_kidney import actions, embeddings, \
 	models, loggers, wrappers
 
 # LOCAL CONSTS
 EPISODES = 100
 SHOW = False
-
-# AGENT CONSTS
-AGENT = agents.GreedyAgent()
 
 # ACTION CONSTS
 CYCLE_CAP = 3
@@ -34,10 +31,13 @@ LOGGING = loggers.CsvLogger(PATH, EXP)
 # MAIN
 def main():
 	env = gym.make("kidney-v0")
-	env = wrappers.ConfigWrapper(env, ACTION, AGENT, EMBEDDING,
-		MODEL, LOGGING)
-	env = wrappers.RunWrapper(env, EPISODES, SHOW)
-	env.run()
+	env = wrappers.ConfigWrapper(env, ACTION, EMBEDDING, MODEL, LOGGING)
+	for i in range(EPISODES):
+		obs, done = env.reset(), False
+		while not done:
+			if SHOW:
+				env.render()
+			obs, reward, done, _ = env.step(1)
 
 if __name__ == "__main__":
 	main()

@@ -16,7 +16,7 @@ class CsvLogger(loggers.Logger):
 		self.output_headers = False
 
 	def output_log(self, env):
-		components = [env.action, env.agent, env.embedding, env.model]
+		components = [env.action, env.embedding, env.model]
 		params = {}
 		stats = {}
 

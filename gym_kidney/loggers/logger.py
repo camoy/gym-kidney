@@ -11,7 +11,7 @@ class Logger:
 	# _flush_stat : Env -> None
 	# Clears all statistics
 	def _flush_stat(self, env):
-		components = [env.action, env.agent, env.embedding, env.model]
+		components = [env.action, env.embedding, env.model]
 
 		for component in components:
 			for k, _ in component.stats.items():

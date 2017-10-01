@@ -33,8 +33,6 @@ located in the respective directory. Here is a brief overview.
 * `_solver/` contains James Trimble's
   [kidney solver](https://github.com/jamestrimble/kidney_solver). This
   should not be modified.
-* `actions/` specify the action space of any agent interacting with
-  the environment.
 * `embeddings/` contain modules which embed the kidney exchange graph
   into a fixed-size vector.
 * `envs/` has only the main kidney environment driver.
