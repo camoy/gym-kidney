@@ -5,46 +5,56 @@ the graph into a fixed-sized vector representation. There are two types
 of embeddings possible: atomic and composite.
 
 Atomic embeddings operate on the graph itself. Composite embeddings operate
-on other embeddings.
+on other embeddings. Currently, the only composite embedding is
+`UnionEmbedding`.
 
 ## `ChainEmbedding`
 
-An atomic embedding that embeds the sum of the longest chains possible from
+`ChainEmbedding` embeds the sum of longest chains possible from
 all non-directed donors.
 
 ## `CycleFixedEmbedding`
 
-An atomic embedding that embeds an estimate for the number of cycles of a
-certain length in the graph. It uses a fixed amount of samples to make
-an estimate.
+`CycleFixedEmbedding` embeds an estimate for the number of cycles in the graph
+using a fixed number of samples.
+
+* `sample_size : Nat`, number of samples to take
+* `cycle_length : Nat`, cycle length under consideration
 
 ## `CycleVariableEmbedding`
 
-An atomic embedding that embeds an estimate for the number of cycles of a
-certain length in the graph. It uses a variable amount of samples to make
-an estimate.
+CycleVariableEmbedding embeds an estimate for the number of cycles in the
+graph using a variable number of samples.
+
+* `successes : Nat`, number of successes before stopping
+* `sample_cap : Nat`, maximum samples to take before quitting
+* `cycle_length : Nat`, cycle length under consideration
 
 ## `DdEmbedding`
 
-An atomic embedding that embeds the number of directed donors.
+`DdEmbedding` embeds the number of directed donors.
 
 ## `NddEmbedding`
 
-An atomic embedding that embeds the number of non-directed donors.
+`NddEmbedding` embeds the number of non-directed donors.
 
 ## `NopEmbedding`
 
-An atomic embedding that is empty.
+`NopEmbedding` is empty.
 
 ## `OrderEmbedding`
 
-An atomic embedding that embeds the order of the graph.
+`OrderEmbedding` embeds the order of the graph.
 
 ## `UnionEmbedding`
 
-A composite embedding that unions other embeddings.
+`UnionEmbedding` unions a set of embeddings.
 
 ## `Walk2VecEmbedding`
 
-An atomic embedding that performs a modified Walk2Vec random walk
-procedure.
+`Walk2VecEmbedding` embeds the graph according to a modified Walk2Vec
+random walk method.
+
+* `p0s : [DistrFun]`, initial distributions
+* `tau : Nat`, steps in the random walk
+* `alpha : (0, 1]`, jump probability

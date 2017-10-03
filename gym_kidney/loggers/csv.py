@@ -1,8 +1,8 @@
 from gym_kidney import loggers
 
-#
-# CsvLogger outputs the log as a CSV file. It is parametrized
-# by:
+# CsvLogger outputs results as two CSV files. One records the parameters
+# of the environment, the other the performance of the agent after interacting
+# with the environment.
 # - path : String, the directory the file will go
 # - exp : Nat, the number of the experiment
 # - custom : Dict, dictionary of custom parameters

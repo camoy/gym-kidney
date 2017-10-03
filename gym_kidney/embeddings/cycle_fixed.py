@@ -8,6 +8,8 @@ import networkx as nx
 #
 # CycleFixedEmbedding embeds an estimate for the number of cycles in the graph
 # using a fixed number of samples.
+# - sample_size : Nat, number of samples to take
+# - cycle_length : Nat, cycle length under consideration
 #
 class CycleFixedEmbedding(embeddings.Embedding):
 

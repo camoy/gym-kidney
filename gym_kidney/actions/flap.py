@@ -4,7 +4,7 @@ from gym_kidney import _solver
 
 #
 # FlapAction performs a maximum cardinality matching on
-# the graph. It is parametrized by:
+# the graph.
 # - cycle_cap : Nat, the cycle cap for the solver
 # - chain_cap : Nat, the chain cap for the solver
 #

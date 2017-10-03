@@ -8,6 +8,9 @@ import networkx as nx
 #
 # CycleVariableEmbedding embeds an estimate for the number of cycles in the
 # graph using a variable number of samples.
+# - successes : Nat, number of successes before stopping
+# - sample_cap : Nat, maximum samples to take before quitting
+# - cycle_length : Nat, cycle length under consideration
 #
 class CycleVariableEmbedding(embeddings.Embedding):
 

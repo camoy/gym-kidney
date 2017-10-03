@@ -156,7 +156,7 @@ def pool_max(alpha):
 
 #
 # Walk2VecEmbedding embeds the graph according to a modified Walk2Vec
-# random walk method. It it parametrized by:
+# random walk method.
 # - p0s : [DistrFun], initial distributions
 # - tau : Nat, steps in the random walk
 # - alpha : (0, 1], jump probability

@@ -4,10 +4,19 @@ Actions define what any agent can do in the environment.
 
 ## `FlapAction`
 
-The agent can only choose whether to match under a maximum cardinality
-matching or not.
+`FlapAction` performs a maximum cardinality matching on
+the graph.
+
+* `cycle_cap : Nat`, the cycle cap for the solver
+* `chain_cap : Nat`, the chain cap for the solver
 
 ## `BloodAction`
 
-The agent chooses a re-weight vector which adjusts the weights
-between edges of different blood type pairings.
+`BloodAction` reweights the graph edges according to the
+the action before calling the solver.
+
+* `cycle_cap : Nat`, the cycle cap for the solver
+* `chain_cap : Nat`, the chain cap for the solver
+* `min : Real`, smallest value for vertex
+* `max : Real`, largest value for vertex
+* `w_fun : (Real, Real -> Real)`, weight function

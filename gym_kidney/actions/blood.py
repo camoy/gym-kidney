@@ -12,8 +12,7 @@ BLOODS = {
 
 #
 # BloodAction reweights the graph edges according to the
-# the action before calling the solver. It is parametrized
-# by:
+# the action before calling the solver.
 # - cycle_cap : Nat, the cycle cap for the solver
 # - chain_cap : Nat, the chain cap for the solver
 # - min : Real, smallest value for vertex
