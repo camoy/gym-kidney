@@ -15,7 +15,7 @@ import networkx as nx
 #
 class HeterogeneousModel(models.Model):
 
-	def __init__(self, m, k, p, p_l, p_h, p_a, p_s, len):
+	def __init__(self, m, k, p_l, p_h, p_a, p_s, len):
 		self.m = m
 		self.k = k
 		self.p_l = p_l
