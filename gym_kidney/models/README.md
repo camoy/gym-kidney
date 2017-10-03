@@ -11,3 +11,7 @@ Erdős–Rényi random model.
 
 HeterogeneousModel evolves the graph according to a heterogeneous
 Erdős–Rényi random model.
+
+## `DataModel`
+
+DataModel evolves the graph based on actual kidney exchange data.
