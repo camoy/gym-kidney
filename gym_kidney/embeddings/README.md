@@ -13,6 +13,8 @@ on other embeddings. Currently, the only composite embedding is
 `ChainEmbedding` embeds the sum of longest chains possible from
 all non-directed donors.
 
+* `chain_length : Nat`, chain length under consideration
+
 ## `CycleFixedEmbedding`
 
 `CycleFixedEmbedding` embeds an estimate for the number of cycles in the graph
