@@ -19,7 +19,11 @@ class CsvLogger(loggers.Logger):
 
 	def output_log(self, env):
 		components = [env.action, env.embedding, env.model]
-		params = {}
+		params = {
+			"action" : type(env.action).__name__,
+			"embedding" : type(env.embedding).__name__,
+			"model" : type(env.model).__name__
+		}
 		stats = {}
 
 		for component in components:

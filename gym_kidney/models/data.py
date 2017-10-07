@@ -42,29 +42,32 @@ class DataModel(models.Model):
 		n2 = rng.poisson(self.m / self.k)
 		new = range(n1, n1 + n2)
 
+		# label map
+		r_to_g = self._inv(nx.get_node_attributes(G, "r_id"))
+
 		for u in new:
 			# add vertex
-			id_r = rng.randint(0, R.order())
-			attr_u = R.node[id_r]
-			attr_u["r_id"] = id_r
-
+			r_id = rng.randint(0, R.order())
+			attr_u = R.node[r_id]
+			attr_u["r_id"] = r_id
 			G.add_node(u, attr_u)
 
-			# label map
-			r_to_g = self._inv(nx.get_node_attributes(G, "r_id"))
+			# add to label map
+			if r_id in r_to_g:
+				r_to_g[r_id] += [u]
+			else:
+				r_to_g[r_id] = [u]
 
 			# edges
-			for vs in list(map(r_to_g.get, R.successors(id_r))):
+			for vs in list(map(r_to_g.get, R.successors(r_id))):
 				if vs == None: continue
 				for v in vs:
-					if v in G.nodes():
-						G.add_edge(u, v, weight = 1.0)
+					G.add_edge(u, v)
 
-			for vs in list(map(r_to_g.get, R.predecessors(id_r))):
+			for vs in list(map(r_to_g.get, R.predecessors(r_id))):
 				if vs == None: continue
 				for v in vs:
-					if v in G.nodes():
-						G.add_edge(v, u, weight = 1.0)
+					G.add_edge(v, u)
 
 		self.stats["arrived"] += n2
 		return G
