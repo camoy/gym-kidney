@@ -4,7 +4,7 @@ import networkx as nx
 
 #
 # HeterogeneousModel evolves the graph according to a heterogeneous
-# Erdős–Rényi random model. Parametrized by:
+# Erdős–Rényi random model.
 # - m : Nat, expected vertices per period
 # - k : Nat, ticks per period
 # - p_l : [0, 1], probability of edge to patient with low PRA

@@ -6,7 +6,7 @@ import csv
 
 #
 # DataModel evolves the graph by simulating on real exchange
-# data. Parametrized by:
+# data.
 # - m : Nat, expected vertices per period
 # - k : Nat, ticks per period
 # - data : String, path to CSV containing data
@@ -75,7 +75,12 @@ class DataModel(models.Model):
 	def depart(self, G, rng):
 		n1 = G.order()
 		n2 = rng.binomial(n1, 1.0 / self.k)
-		old = rng.choice(G.nodes(), n2, replace = False).tolist()
+
+		if G.order() <= n2:
+			old = G.nodes()
+		else:
+			old = rng.choice(G.nodes(), n2, replace = False)
+			old = old.tolist()
 
 		G.remove_nodes_from(old)
 		self.stats["departed"] += n2
