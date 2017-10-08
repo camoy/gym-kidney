@@ -17,8 +17,8 @@ class KidneyEnv(gym.Env):
 		self._seed()
 
 	def _seed(self, seed = None):
-		self.seed = seed
 		self.rng, seed = seeding.np_random(seed)
+		self.rng_seed = seed
 		return [seed]
 
 	def _step(self, action):

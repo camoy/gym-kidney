@@ -22,7 +22,8 @@ class CsvLogger(loggers.Logger):
 		params = {
 			"action" : type(env.action).__name__,
 			"embedding" : type(env.embedding).__name__,
-			"model" : type(env.model).__name__
+			"model" : type(env.model).__name__,
+			"seed" : env.rng_seed
 		}
 		stats = {}
 
