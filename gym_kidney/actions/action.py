@@ -64,6 +64,8 @@ class Action:
 			vs = c.vtx_indices
 			out += [d_ndd[c.ndd_index]]
 			out += list(map(lambda u: d_dd[u], vs))
+		for v in out:
+			self.stats["matched_%s" % G.node[v]["bp"]] += 1
 
 		G.remove_nodes_from(out)
 		return nx.convert_node_labels_to_integers(G)

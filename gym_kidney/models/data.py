@@ -4,6 +4,8 @@ import numpy as np
 import networkx as nx
 import csv
 
+BLOODS = ["A", "B", "AB", "O", "-"]
+
 #
 # DataModel evolves the graph by simulating on real exchange
 # data.
@@ -36,6 +38,10 @@ class DataModel(models.Model):
 			"departed": 0
 		}
 
+		for blood in BLOODS:
+			self.stats["arrived_%s" % blood] = 0
+			self.stats["departed_%s" % blood] = 0
+
 	def arrive(self, G, rng):
 		R = self._ref
 		n1 = G.order()
@@ -51,6 +57,7 @@ class DataModel(models.Model):
 			attr_u = R.node[r_id]
 			attr_u["r_id"] = r_id
 			G.add_node(u, attr_u)
+			self.stats["arrived_%s" % attr_u["bp"]] += 1
 
 			# add to label map
 			if r_id in r_to_g:
@@ -81,6 +88,9 @@ class DataModel(models.Model):
 		else:
 			old = rng.choice(G.nodes(), n2, replace = False)
 			old = old.tolist()
+
+		for v in old:
+			self.stats["departed_%s" % G.node[v]["bp"]] += 1
 
 		G.remove_nodes_from(old)
 		self.stats["departed"] += n2

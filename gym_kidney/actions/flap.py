@@ -2,6 +2,8 @@ from gym import spaces
 from gym_kidney import actions
 from gym_kidney import _solver
 
+BLOODS = ["A", "B", "AB", "O", "-"]
+
 #
 # FlapAction performs a maximum cardinality matching on
 # the graph.
@@ -25,6 +27,9 @@ class FlapAction(actions.Action):
 			"cycle_reward": 0,
 			"chain_reward": 0
 		}
+
+		for blood in BLOODS:
+			self.stats["matched_%s" % blood] = 0
 
 	def do_action(self, G, action):
 		if action == 0:
