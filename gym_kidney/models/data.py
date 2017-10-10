@@ -39,8 +39,10 @@ class DataModel(models.Model):
 		}
 
 		for blood in BLOODS:
-			self.stats["arrived_%s" % blood] = 0
-			self.stats["departed_%s" % blood] = 0
+			self.stats["%s_patient_arrived" % blood] = 0
+			self.stats["%s_donor_arrived" % blood] = 0
+			self.stats["%s_patient_departed" % blood] = 0
+			self.stats["%s_donor_departed" % blood] = 0
 
 	def arrive(self, G, rng):
 		R = self._ref
@@ -57,7 +59,8 @@ class DataModel(models.Model):
 			attr_u = R.node[r_id]
 			attr_u["r_id"] = r_id
 			G.add_node(u, attr_u)
-			self.stats["arrived_%s" % attr_u["bp"]] += 1
+			self.stats["%s_patient_arrived" % attr_u["bp"]] += 1
+			self.stats["%s_donor_arrived" % attr_u["bd"]] += 1
 
 			# add to label map
 			if r_id in r_to_g:
@@ -90,7 +93,8 @@ class DataModel(models.Model):
 			old = old.tolist()
 
 		for v in old:
-			self.stats["departed_%s" % G.node[v]["bp"]] += 1
+			self.stats["%s_patient_departed" % G.node[v]["bp"]] += 1
+			self.stats["%s_donor_departed" % G.node[v]["bd"]] += 1
 
 		G.remove_nodes_from(old)
 		self.stats["departed"] += n2

@@ -29,7 +29,8 @@ class FlapAction(actions.Action):
 		}
 
 		for blood in BLOODS:
-			self.stats["matched_%s" % blood] = 0
+			self.stats["%s_patient_matched" % blood] = 0
+			self.stats["%s_donor_matched" % blood] = 0
 
 	def do_action(self, G, action):
 		if action == 0:
