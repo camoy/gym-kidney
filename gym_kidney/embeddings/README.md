@@ -44,6 +44,13 @@ graph using a variable number of samples.
 
 `NopEmbedding` is empty.
 
+## `NormalizeEmbedding`
+
+`NormalizeEmbedding` multplies every entry by a multiplier.
+
+* `embedding : Embedding`, embedding to normalize
+* `multipliers : [Float]`, entry-wise multipliers
+
 ## `OrderEmbedding`
 
 `OrderEmbedding` embeds the order of the graph.

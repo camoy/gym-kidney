@@ -36,4 +36,4 @@ class CycleFixedEmbedding(embeddings.Embedding):
 					break
 
 		val = [max_cycle * (succ / self.sample_size)]
-		return np.array(v, dtype = "f")
+		return np.array(val, dtype = "f")
