@@ -16,4 +16,4 @@ class NddEmbedding(embeddings.Embedding):
 		for u in G.nodes_iter():
 			if G.node[u]["ndd"]:
 				ndd += 1
-		return np.array([ndd])
+		return np.array([ndd], dtype = "f")

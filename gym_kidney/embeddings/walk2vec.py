@@ -187,13 +187,13 @@ class Walk2VecEmbedding(embeddings.Embedding):
 
 		# empty graph
 		if g.order() == 0:
-			return np.array([0]*self.size)
+			return np.array([0]*self.size, dtype = "f")
 
 		# non-empty graphs
 		phi = []
 		for i, p0_i in enumerate(p0s):
 			phi += _feature(g, p0_i(g), tau, alpha)
-		return np.array(phi)
+		return np.array(phi, type = "f")
 
 #
 # WALK2VEC SPARSE CODING

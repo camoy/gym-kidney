@@ -21,7 +21,7 @@ class CycleFixedEmbedding(embeddings.Embedding):
 
 	def embed(self, G, rng):
 		if G.order() < self.cycle_length:
-			return np.array([0.0])
+			return np.array([0.0], dtype = "f")
 
 		succ = 0
 		max_cycle = sp.binom(G.order(), self.cycle_length)
@@ -35,4 +35,5 @@ class CycleFixedEmbedding(embeddings.Embedding):
 					succ += 1
 					break
 
-		return np.array([max_cycle * (succ / self.sample_size)])
+		val = [max_cycle * (succ / self.sample_size)]
+		return np.array(v, dtype = "f")

@@ -22,7 +22,7 @@ class ChainEmbedding(embeddings.Embedding):
 		for u in G.nodes_iter():
 			if G.node[u]["ndd"]:
 				len += min(paths[u], self.chain_length)
-		return np.array([len])
+		return np.array([len], dtype = "f")
 
 	def _longest_paths(G):
 		dist = {}

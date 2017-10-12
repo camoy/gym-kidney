@@ -5,6 +5,7 @@ from gym_kidney.embeddings.cycle_variable import *
 from gym_kidney.embeddings.dd import *
 from gym_kidney.embeddings.ndd import *
 from gym_kidney.embeddings.nop import *
+from gym_kidney.embeddings.normalize import *
 from gym_kidney.embeddings.order import *
 from gym_kidney.embeddings.union import *
 from gym_kidney.embeddings.walk2vec import *

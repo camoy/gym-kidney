@@ -10,11 +10,12 @@ import networkx as nx
 class UnionEmbedding(embeddings.Embedding):
 
 	def __init__(self, embeddings):
-		n = len(embeddings)
-		low, high = np.inf, -np.inf
+		n, low, high = 0, np.inf, -np.inf
 		names = []
 
 		for e in embeddings:
+			sp = e.observation_space
+			n += 1 if sp.shape == () else sp.shape[0]
 			low = min(low, e.observation_space.low[0])
 			high = max(high, e.observation_space.high[0])
 			self.params = {**self.params, **e.params}
@@ -25,7 +26,7 @@ class UnionEmbedding(embeddings.Embedding):
 		self.params = { **self.params, "embeddings" : ";".join(names) }
 
 	def embed(self, G, rng):
-		embedding = np.array([])
+		embedding = np.array([], dtype = "f")
 
 		for e in self.embeddings:
 			embedding = np.concatenate((embedding, e.embed(G, rng)))

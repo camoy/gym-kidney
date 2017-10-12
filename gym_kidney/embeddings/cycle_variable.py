@@ -23,7 +23,7 @@ class CycleVariableEmbedding(embeddings.Embedding):
 
 	def embed(self, G, rng):
 		if G.order() < self.cycle_length:
-			return np.array([0.0])
+			return np.array([0.0], dtype = "f")
 
 		succ, samples = 0, 0
 		max_cycle = sp.binom(G.order(), self.cycle_length)
@@ -41,4 +41,4 @@ class CycleVariableEmbedding(embeddings.Embedding):
 
 			samples += 1
 			
-		return np.array([max_cycle * (succ / samples)])
+		return np.array([max_cycle * (succ / samples)], dtype = "f")
