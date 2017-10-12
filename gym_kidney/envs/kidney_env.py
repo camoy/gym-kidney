@@ -35,6 +35,7 @@ class KidneyEnv(gym.Env):
 		self.logger.output_log(self)
 		self.tick = 0
 		self.G = nx.DiGraph()
+		self.seed(self.rng_seed + 1)
 		return self._obs()
 
 	def _obs(self):
