@@ -193,7 +193,7 @@ class Walk2VecEmbedding(embeddings.Embedding):
 		phi = []
 		for i, p0_i in enumerate(p0s):
 			phi += _feature(g, p0_i(g), tau, alpha)
-		return np.array(phi, type = "f")
+		return np.array(phi, dtype = "f")
 
 #
 # WALK2VEC SPARSE CODING
