@@ -18,20 +18,12 @@ class ChainEmbedding(embeddings.Embedding):
 
 	def embed(self, G, rng):
 		len = 0
-		paths = self._longest_paths(G)
+
 		for u in G.nodes_iter():
 			if G.node[u]["ndd"]:
-				len += min(paths[u], self.chain_length)
+				len += self._longest_path(G, u)
+
 		return np.array([len], dtype = "f")
 
-	def _longest_paths(G):
-		dist = {}
-
-		for node in nx.topological_sort(G):
-			pairs = [(dist[v][0] + 1, v) for v in G.pred[node]] 
-			if pairs:
-				dist[node] = max(pairs)
-			else:
-				dist[node] = (0, node)
-
-		return dist
+	def _longest_path(self, G, u):
+		return len(nx.dag_longest_path(nx.bfs_tree(G, u)))
