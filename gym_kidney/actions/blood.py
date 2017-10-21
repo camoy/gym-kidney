@@ -41,11 +41,11 @@ class BloodAction(actions.Action):
 			"chain_reward": 0
 		}
 
+		for blood in BLOODS:
+			self.stats["%s_patient_matched" % blood] = 0
+			self.stats["%s_donor_matched" % blood] = 0
 
 	def do_action(self, G, action):
-		if action == 0:
-			return (G, 0)
-
 		dd, ndd = self._nx_to_ks(G)
 		cfg = _solver.kidney_ip.OptConfig(
 			dd,
