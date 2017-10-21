@@ -1,5 +1,6 @@
 from gym_kidney.embeddings.embedding import *
 from gym_kidney.embeddings.chain import *
+from gym_kidney.embeddings.omniscient import *
 from gym_kidney.embeddings.cycle_fixed import *
 from gym_kidney.embeddings.cycle_variable import *
 from gym_kidney.embeddings.dd import *

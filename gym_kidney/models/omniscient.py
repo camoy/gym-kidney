@@ -7,7 +7,7 @@ import csv
 BLOODS = ["A", "B", "AB", "O", "-"]
 
 #
-# DataModel evolves the graph by simulating on real exchange
+# OmniscientModel evolves the graph by simulating on real exchange
 # data.
 # - m : Nat, expected vertices per period
 # - k : Nat, ticks per period
@@ -15,7 +15,7 @@ BLOODS = ["A", "B", "AB", "O", "-"]
 # - details : String, path to CSV containing vertex attributes
 # - len : Nat, ticks per episode
 #
-class DataModel(models.Model):
+class OmniscientModel(models.Model):
 
 	def __init__(self, m, k, data, details, len):
 		self.m = m
@@ -84,7 +84,7 @@ class DataModel(models.Model):
 
 	def depart(self, G, rng):
 		n1 = G.order()
-		n2 = rng.binomial(n1, 1.0 / self.k)
+		n2 = self.env.embedding.depart_number(G, rng)
 
 		if G.order() <= n2:
 			old = G.nodes()
