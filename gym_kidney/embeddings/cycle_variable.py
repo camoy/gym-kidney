@@ -31,6 +31,7 @@ class CycleVariableEmbedding(embeddings.Embedding):
 		for _ in range(self.sample_cap):
 			us = rng.choice(G.nodes(), self.cycle_length)
 			H = G.subgraph(us.tolist())
+			samples += 1
 
 			for c in nx.simple_cycles(H):
 				if len(c) == self.cycle_length:
@@ -38,7 +39,5 @@ class CycleVariableEmbedding(embeddings.Embedding):
 					break
 			if succ >= self.successes:
 				break
-
-			samples += 1
 			
 		return np.array([max_cycle * (succ / samples)], dtype = "f")
