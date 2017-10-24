@@ -82,7 +82,7 @@ class OmniscientModel(models.Model):
 				if vs == None: continue
 				for v in vs:
 					if rng.rand() > self.p_d:
-						G.add_edge(u, v)
+						G.add_edge(v, u)
 
 		self.stats["arrived"] += n2
 		return G
