@@ -14,12 +14,14 @@ BLOODS = ["A", "B", "AB", "O", "-"]
 # - data : String, path to CSV containing data
 # - details : String, path to CSV containing vertex attributes
 # - len : Nat, ticks per episode
+# - p_d : [0, 1], probability of dropping an edge
 #
 class OmniscientModel(models.Model):
 
 	def __init__(self, m, k, data, details, len):
 		self.m = m
 		self.k = k
+		self.p_d = p_d
 		self.data = data
 		self.details = details
 		self.len = len
@@ -28,6 +30,7 @@ class OmniscientModel(models.Model):
 		self.params = {
 			"m": m,
 			"k": k,
+			"p_d": p_d,
 			"data": data,
 			"details": details,
 			"len": len
@@ -72,12 +75,14 @@ class OmniscientModel(models.Model):
 			for vs in list(map(r_to_g.get, R.successors(r_id))):
 				if vs == None: continue
 				for v in vs:
-					G.add_edge(u, v)
+					if rng.rand() > self.p_d:
+						G.add_edge(u, v)
 
 			for vs in list(map(r_to_g.get, R.predecessors(r_id))):
 				if vs == None: continue
 				for v in vs:
-					G.add_edge(v, u)
+					if rng.rand() > self.p_d:
+						G.add_edge(u, v)
 
 		self.stats["arrived"] += n2
 		return G
