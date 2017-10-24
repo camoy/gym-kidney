@@ -11,10 +11,10 @@ BLOODS = ["A", "B", "AB", "O", "-"]
 # data.
 # - m : Nat, expected vertices per period
 # - k : Nat, ticks per period
+# - p_d : [0, 1], probability of dropping an edge
 # - data : String, path to CSV containing data
 # - details : String, path to CSV containing vertex attributes
 # - len : Nat, ticks per episode
-# - p_d : [0, 1], probability of dropping an edge
 #
 class SparseModel(models.Model):
 
